@@ -21,6 +21,7 @@ alias Tile = str;
 alias AlphabetMap = map[str, Alphabet];
 alias RuleMap	= map[str, Rule];
 alias Recipe = list[Instruction];
+alias Model = tuple[str, tuple[str,str]];
 
 data TransformationArtifact
 	= transformationArtifact(LudoscopeProject project, 
@@ -40,7 +41,8 @@ data LudoscopeModule
 		str alphabetName,
 		TileMap startingState, 
 		RuleMap rules, 
-		Recipe recipe)
+		Recipe recipe,
+		Model model)
 	| undefinedModule();
 	
 data Rule

@@ -45,6 +45,7 @@ syntax Module
 	("grammar" BOOLEAN grammar)?
 	("executionType" NAME executionType)?
 	("recipe" BOOLEAN recipe)?
+	("model" BOOLEAN model)?
 	("showMembers" BOOLEAN showMembers)?
 	("alwaysStartWithToken" BOOLEAN alwaysStartWithToken)?;
 	
@@ -120,6 +121,7 @@ keyword Keyword
 	| "grammar"
 	| "executionType"
 	| "recipe"
+	| "model"
 	| "showMembers"
 	| "alwaysStartWithToken";
   

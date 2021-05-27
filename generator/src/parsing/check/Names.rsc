@@ -120,7 +120,8 @@ public Name findName
 		str alphabetName,
 		TileMap startingState, 
 		RuleMap rules, 
-		Recipe recipe) :
+		Recipe recipe,
+		Model model) :
 		{
 			if (name in rules)
 			{

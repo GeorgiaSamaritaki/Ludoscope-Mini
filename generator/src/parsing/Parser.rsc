@@ -18,7 +18,7 @@ import parsing::languages::project::AST;
 import parsing::languages::alphabet::AST;
 import parsing::languages::recipe::AST;
 import parsing::languages::grammar::AST;
-
+import parsing::languages::model::AST;
 //import sanr::language::AST;
 
 import parsing::DataStructures;
@@ -29,6 +29,7 @@ alias AbstractProjectList = list[parsing::languages::project::AST::Project];
 alias AbstractGrammarMap = map[str, parsing::languages::grammar::AST::Grammar] ;
 alias AbstractAlphabetMap = map[str, parsing::languages::alphabet::AST::Alphabet];
 alias AbstractRecipeMap = map[str, parsing::languages::recipe::AST::Recipe];
+alias AbstractModelMap = map[str, parsing::languages::model::AST::Model];
 //alias AbstractPropertyList = list[sanr::language::AST::LevelSpecification];
 
 data SyntaxTree
@@ -37,6 +38,7 @@ data SyntaxTree
 	AbstractGrammarMap grammars, 
 	AbstractAlphabetMap alphabets, 
 	AbstractRecipeMap recipes,
+	AbstractModelMap models,
 	list[ParsingError] errors);
 	//AbstractPropertyList properties,
 
@@ -52,6 +54,7 @@ public SyntaxTree parseFile(loc file, SyntaxTree syntaxTree)
 				case "grm" : syntaxTree.grammars += (fileName(file) : parseGrammarToAST(file));
 				case "alp" : syntaxTree.alphabets += (fileName(file) : parseAlphabetToAST(file));
 				case "rcp" : syntaxTree.recipes += (fileName(file) : parseRecipeToAST(file));
+				case "mdl" : syntaxTree.models += (fileName(file) : parseModelToAST(file));
 				//case "sanr" : syntaxTree.properties += [parseSAnRToAST(file)];
 				default : syntaxTree.errors += [errors::Parsing::extension(file)];
 			}
@@ -79,7 +82,7 @@ public SyntaxTree parseFile(loc file, SyntaxTree syntaxTree)
 public SyntaxTree parseCompleteProject(loc projectFile)
 {
 	//SyntaxTree syntaxTree = syntaxTree([], (), (), (), [], []);
-	SyntaxTree syntaxTree = syntaxTree([], (), (), (), []);
+	SyntaxTree syntaxTree = syntaxTree([], (), (), (), (), []);
 	
 	syntaxTree = parseFile(projectFile, syntaxTree);
 	
@@ -102,7 +105,7 @@ public list[loc] gatherFileLocations(SyntaxTree syntaxTree, loc projectFile)
 	{
 		case lspmodule(str name, str alphabet, str position, str moduleType, str fileName,
 			str match, list[str] inputs, str maxIterations,	str moduleFilter,	str grammar,
-			str executionType, str recipe, str showMembers, str alwaysStartWithToken) :
+			str executionType, str recipe, str model, str showMembers, str alwaysStartWithToken) :
 			{
 				fileLocations += [fileLocation(projectFile, cleanGrammarName(name), ".grm")];
 				if (cleanRecipeBool(recipe) == "true")

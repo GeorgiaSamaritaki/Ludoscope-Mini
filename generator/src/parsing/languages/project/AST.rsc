@@ -61,6 +61,7 @@ data Module
 	str grammar,
 	str executionType,
 	str recipe,
+	str model,
 	str showMembers,
 	str alwaysStartWithToken);
 
