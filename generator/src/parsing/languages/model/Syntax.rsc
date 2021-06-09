@@ -20,7 +20,8 @@ start syntax Model
   = model: Commands*;
   
 syntax Commands
-  = makePath: "MakePath" "(" String String ")" ;
+  = makePath: COMMENTED? "MakePath" "(" String String ")" 
+  | destroyPath: COMMENTED? "DestroyPath" "(" String String ")";
 
 syntax String
   = @category="String" "\"" STRING "\"";
@@ -49,7 +50,8 @@ lexical LAYOUT
   = [\t-\n \r \ : ,];
  
 keyword Keyword
-  = "MakePath";
+  = "MakePath"
+  | "DestroyPath";
   
 //////////////////////////////////////////////////////////////////////////////
 // API

@@ -20,17 +20,20 @@ import parsing::languages::alphabet::Syntax;
 import parsing::languages::project::Syntax;
 import parsing::languages::grammar::Syntax;
 import parsing::languages::recipe::Syntax;
+import parsing::languages::model::Syntax;
 
 str ALPHABETNAME = "Ludoscope Alphabet";
 str PROJECTNAME = "Ludoscope Project";
 str GRAMMARNAME = "Ludoscope Grammar";
 str RECIPENAME = "Ludoscope Recipe";
+str MODELNAME = "Ludoscope Model";
 str PROPERTIESNAME = "Ludoscope Properties";
 
 str ALPHABETABBREVIATION = "alp";
 str PROJECTABBREVIATION = "lsp";
 str GRAMMARABBREVIATION = "grm";
-str RECIPENABBREVIATION = "rcp";
+str RECIPEABBREVIATION = "rcp";
+str MODELABBREVIATION = "mdl";
 
 Contribution STYLE =
   categories
@@ -48,7 +51,8 @@ public void registerLanguages()
 	registerLanguage(ALPHABETNAME, ALPHABETABBREVIATION, parseAlphabet);
 	registerLanguage(PROJECTNAME, PROJECTABBREVIATION, parsing::languages::project::Syntax::parseProject);
 	registerLanguage(GRAMMARNAME, GRAMMARABBREVIATION, parseGrammar);
-	registerLanguage(RECIPENAME, RECIPENABBREVIATION, parseRecipe);
+	registerLanguage(RECIPENAME, RECIPEABBREVIATION, parseRecipe);
+	registerLanguage(MODELNAME, MODELABBREVIATION, parseModel);
 }
 
 public void addSyntaxHighLights()
@@ -62,6 +66,7 @@ public void addSyntaxHighLights()
   registerContributions(PROJECTNAME, styleContributions);
   registerContributions(GRAMMARNAME, styleContributions);
   registerContributions(RECIPENAME, styleContributions);
+  registerContributions(MODELNAME, styleContributions);
   registerContributions(PROPERTIESNAME, styleContributions);
 }
 

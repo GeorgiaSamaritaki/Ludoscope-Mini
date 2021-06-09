@@ -26,7 +26,7 @@ import execution::instructions::Matching;
 // TODO: replace itterateRule with something that stops when tileMap doesn't change.
 public ExecutionArtifact executeInstruction
 (
-	ExecutionArtifact artifact,
+	ExecutionArtifact artifact, 
 	LudoscopeModule \module, 
 	executeRule(str ruleName, int itterations))
 {
@@ -75,7 +75,6 @@ public ExecutionArtifact executeInstruction
 					indexOf(rule.rightHands, replacement),
 					match.c);
 		artifact.history = push(newStep, artifact.history);
-		
 		/* Update property report. */
 		//artifact.propertyReport = updatePropertyReport(artifact);
 	}
@@ -91,9 +90,10 @@ public ExecutionArtifact executeInstruction
 {
 	RuleMap rules = \module.rules;
 	RuleMap currentRules = rules;
+println("here <rules> and <currentRules>");
 	if (size(currentRules) > 0)
 	{
-		/* Loop stops after 300 instructions of after no matches are left. */
+		/* Loop stops after 500 instructions of after no matches are left. */
 		// TODO: Read maxIterations from module.
 		int i = 0;
 		while (i < 500)

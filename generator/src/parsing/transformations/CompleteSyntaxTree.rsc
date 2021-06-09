@@ -19,6 +19,7 @@ import parsing::transformations::Project;
 import parsing::transformations::Alphabet;
 import parsing::transformations::Grammar;
 import parsing::transformations::Recipe;
+import parsing::transformations::Model;
 import parsing::transformations::Properties;
 
 //import sanr::language::AST;
@@ -33,6 +34,7 @@ public TransformationArtifact transformSyntaxTree(SyntaxTree syntaxTree)
 	artifact = transformAplhabets(artifact, syntaxTree);
 	artifact = transformGrammars(artifact, syntaxTree);
 	artifact = transformRecipes(artifact, syntaxTree);
+	artifact = transformModels(artifact, syntaxTree);
 	artifact = transformProperties(artifact, syntaxTree);
 	
 	artifact = addEmptyRecipes(artifact);

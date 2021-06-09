@@ -1,0 +1,15 @@
+- Add entrance and exit
+    - A path is created between the entrance and exit
+- Add a wall in the middle of the level and a locked door
+    - Path breaks
+    - Solution: add a key to the first part of the graph
+    - break the path graph into two graphs 
+       1. entrance to key 
+       2. key to exit (with the option that door is now traversable) 
+- Add uncrossable lava after the door
+    - Path breaks
+    - Solution: add a lava potion to the first part of the graph
+    - break the path graph into two graphs 
+       1. entrance to potion 
+       2. potion to exit (with the option that lava is now traversable) 
+       

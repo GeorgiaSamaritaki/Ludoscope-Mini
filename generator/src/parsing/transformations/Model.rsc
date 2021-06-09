@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 module parsing::transformations::Model
+import IO;
 
 import parsing::Parser;
 import parsing::DataStructures;
@@ -18,14 +19,15 @@ import parsing::languages::model::AST;
 public TransformationArtifact transformModels(TransformationArtifact artifact, 
 	SyntaxTree syntaxTree)
 {
-	for (str modelName <- syntaxTree.models)
-	{
-		int moduleIndex = findModuleIndex(modelName, artifact);
-		
-		for (Model m<- syntaxTree.recipes[modelName].instructions)
-		{
-				artifact.project.modules[moduleIndex].model = m;
-		}
-	}
+	//for (str modelName <- syntaxTree.models)
+	//{
+	//	int moduleIndex = findModuleIndex(modelName, artifact);
+	//	
+	//	for (Model m<- syntaxTree.recipes[modelName].instructions)
+	//	{
+	//			artifact.project.modules[moduleIndex].model = m;
+	//	}
+	//}
+	println("ok");
 	return artifact;
 }

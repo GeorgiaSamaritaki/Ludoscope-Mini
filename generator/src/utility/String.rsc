@@ -22,9 +22,9 @@ public str cleanAlphabetName(str name)
 	return removeQuotes(name[10..]);
 }
 
-public str cleanRecipeBool(str text)
+public bool isTrue(str text)
 {
-	return text[8..];
+	return contains(text, "true"); //TODO: fix this is sloppy
 }
 
 public loc fileLocation(loc projectLocation, str filename, str extension)

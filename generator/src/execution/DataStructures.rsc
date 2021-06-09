@@ -27,6 +27,7 @@ data ExecutionArtifact =
 										TileMap currentState,
 										ExecutionHistory history,
 										//PropertyReport propertyReport,
+										//map[str,tuple[int,int]] references,
 										list[ExecutionError] errors)
 	| emptyExecutionArtifact();
 	

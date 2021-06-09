@@ -23,7 +23,7 @@ public TransformationArtifact transformProject(TransformationArtifact artifact,
 	{
 		case lspmodule(str name, str alphabet, str position, str moduleType, str fileName,
 			str match, list[str] inputs, str maxIterations,	str moduleFilter,	str grammar,
-			str executionType, str recipe, str showMembers, str alwaysStartWithToken) :
+			str executionType, str recipe, str model, str showMembers, str alwaysStartWithToken) :
 		{
 			list[str] cleanInputs = [removeQuotes(input) | str input <- inputs];
 			artifact.project.modules +=
@@ -32,6 +32,7 @@ public TransformationArtifact transformProject(TransformationArtifact artifact,
 												cleanAlphabetName(alphabet),
 												[[]], 
 												(), 
+												[],
 												[])];
 		}
 	}

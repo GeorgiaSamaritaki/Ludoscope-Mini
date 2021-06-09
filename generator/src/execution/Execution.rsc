@@ -29,9 +29,7 @@ public ExecutionArtifact executeProject(LudoscopeProject project)
 {
 	list[LudoscopeModule] modules = project.modules;
 	PreparationArtifact preparationArtifact =  extractModuleHierarchy(project);
-		
-	iprintln("Module hierarchy!");
-	iprintln(preparationArtifact);
+		println("here we go");
 	if (preparationArtifact.errors != [])
 	{
 		artifact.errors = preparationArtifact.errors;
@@ -48,12 +46,13 @@ public ExecutionArtifact executeProject(LudoscopeProject project)
 	ExecutionArtifact artifact = executionArtifact((), [], [], 
 	//propertyReport, 
 	[]);
-	
+	println("made exec artifact");
 	/* Execute all modules. */
 	for (set[LudoscopeModule] moduleGroup <- preparationArtifact.hierarchy)
 	{
 		for (LudoscopeModule currentModule <- moduleGroup)
 		{
+		println("running <currentModule>");
 			artifact = executeModule(artifact, currentModule);
 		}
 	}
@@ -67,6 +66,7 @@ public ExecutionArtifact executeModule
 	LudoscopeModule ludoscopeModule
 )
 {
+println("execute module");
 	switch (size(ludoscopeModule.inputs))
 	{
 		case 0 : 
@@ -79,7 +79,9 @@ public ExecutionArtifact executeModule
 			artifact.currentState = artifact.output[head(ludoscopeModule.inputs)];
 			artifact = executeRecipe(artifact, ludoscopeModule);
 		}
-		default :{;}			
+		default :{
+		println("yes it went to default!");
+		}			
 		// TODO: add merge functions.
 
 	}

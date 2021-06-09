@@ -88,6 +88,7 @@ syntax RuleSettings
 	= ruleWidth: "width" "=" INTEGER width
 	|	ruleHeight: "height" "=" INTEGER height
 	| ruleReflections: "gt" "=" INTEGER reflections;
+	//| reference: "ref" "=" String string;
 
 syntax Value
 	= integerValue: INTEGER integer

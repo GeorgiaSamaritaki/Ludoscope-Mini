@@ -47,7 +47,7 @@ public SyntaxTree parseFile(loc file, SyntaxTree syntaxTree)
 	if (exists(file))
 	{
 		try 
-		{
+		{	
 			switch (file.extension)
 			{
 				case "lsp" : syntaxTree.project += [parseProjectToAST(file)];
@@ -107,10 +107,17 @@ public list[loc] gatherFileLocations(SyntaxTree syntaxTree, loc projectFile)
 			str match, list[str] inputs, str maxIterations,	str moduleFilter,	str grammar,
 			str executionType, str recipe, str model, str showMembers, str alwaysStartWithToken) :
 			{
-				fileLocations += [fileLocation(projectFile, cleanGrammarName(name), ".grm")];
-				if (cleanRecipeBool(recipe) == "true")
+				if (isTrue(grammar))
+				{
+					fileLocations += [fileLocation(projectFile, cleanGrammarName(name), ".grm")];
+				}
+				if (isTrue(recipe))
 				{
 					fileLocations += [fileLocation(projectFile, cleanGrammarName(name), ".rcp")];
+				}
+				if (isTrue(model))
+				{
+					fileLocations += [fileLocation(projectFile, cleanGrammarName(name), ".mdl")];
 				}
 			}
 		case alphabet(str name, Position position) :
