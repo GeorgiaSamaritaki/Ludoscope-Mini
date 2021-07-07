@@ -36,7 +36,7 @@ public void parseAndTransform(Tree tree, loc projectFile)
 public void executeProject(Tree tree, loc projectFile)
 {
 	TransformationArtifact artifact = parseAndCheckForErrors(projectFile);
-	//iprintln(artifact);
+	iprintln("parsed and checked!");
 	if (artifact.errors == [])
 	{
 		ExecutionArtifact newArtifact = executeProject(artifact.project);

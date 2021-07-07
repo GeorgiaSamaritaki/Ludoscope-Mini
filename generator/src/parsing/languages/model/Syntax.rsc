@@ -17,9 +17,9 @@ import ParseTree;
 ////////////////////////////////////////////////////////////////////////////// 
 
 start syntax Model
-  = model: Commands*;
+  = model: ModelType*;
   
-syntax Commands
+syntax ModelType
   = makePath: COMMENTED? "MakePath" "(" String String ")" 
   | destroyPath: COMMENTED? "DestroyPath" "(" String String ")";
 

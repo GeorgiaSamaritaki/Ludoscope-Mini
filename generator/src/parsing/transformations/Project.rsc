@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 module parsing::transformations::Project
-
+import IO;
 import parsing::Parser;
 import parsing::languages::grammar::AST;
 import parsing::DataStructures;
@@ -37,5 +37,6 @@ public TransformationArtifact transformProject(TransformationArtifact artifact,
 		}
 	}
 	
+		println("finished transform");
 	return artifact;
 }

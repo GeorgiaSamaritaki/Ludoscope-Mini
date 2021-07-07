@@ -21,9 +21,9 @@ public ExecutionArtifact createModel
 	LudoscopeModule \module, 
 	makePath(str pointA, str pointB))
 {
-	println(artifact);
-	
-	println(\module);
-	
+	//println(artifact);
+	//
+	//println(\module);
+	println("in create model");
 	return artifact;
 }

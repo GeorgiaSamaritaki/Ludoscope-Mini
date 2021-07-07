@@ -28,9 +28,9 @@ public parsing::languages::model::AST::Model parseModelToAST(loc location)
 //////////////////////////////////////////////////////////////////////////////
 		
 data Model
-	= model(list[Kind] kinds);
+	= model(list[ModelType] modelType);
 	
-data Kind
-	= makePath(str pointA, str pointB)
-	| destroyPath(str pointA, str pointB);
+data ModelType
+	= makePath(bool commented, str pointA, str pointB)
+	| destroyPath(bool commented, str pointA, str pointB);
 	

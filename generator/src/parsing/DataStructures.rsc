@@ -21,7 +21,7 @@ alias Tile = str;
 alias AlphabetMap = map[str, Alphabet];
 alias RuleMap	= map[str, Rule];
 alias Recipe = list[Instruction];
-alias Model = tuple[str, tuple[str,str]];
+alias Model = list[ModelType];
 
 data TransformationArtifact
 	= transformationArtifact(LudoscopeProject project, 
@@ -62,3 +62,7 @@ data Instruction
 	= itterateRule(str ruleName)
 	| executeRule(str ruleName, int itterations)
 	| executeGrammar();
+	
+data ModelType
+	= makePath(str pointA, str pointB)
+	| destroyPath(str pointA, str pointB);

@@ -61,19 +61,23 @@ public SyntaxTree parseFile(loc file, SyntaxTree syntaxTree)
 		}
 		catch ParseError(loc errorLocation):
 		{
+		println("caught error1 :<errorLocation>");
 			syntaxTree.errors += [errors::Parsing::parsing(errorLocation)];
 		}
 		catch Ambiguity(loc errorLocation, str usedSyntax, str parsedText):
 		{
+		println("caught error2 : <parsedText>");
 			syntaxTree.errors += [errors::Parsing::ambiguity(errorLocation, usedSyntax)];
 		}
 		catch IllegalArgument(value v, str message):
 		{
+		println("caught error3: \"<message>\" ");
 			syntaxTree.errors += [errors::Parsing::imploding(file)];
 		}
 	}
 	else
 	{
+	println("caught error4");
 		syntaxTree.errors += [errors::Parsing::fileNotFound(file)];
 	}
 	return syntaxTree;
@@ -90,9 +94,7 @@ public SyntaxTree parseCompleteProject(loc projectFile)
 	 	gatherFileLocations(syntaxTree, projectFile);
 
 	for (loc file <- fileLocations)
-	{
 		syntaxTree = parseFile(file, syntaxTree);
-	}
 	
 	return syntaxTree;
 }

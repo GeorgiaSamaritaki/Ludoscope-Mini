@@ -90,7 +90,7 @@ public ExecutionArtifact executeInstruction
 {
 	RuleMap rules = \module.rules;
 	RuleMap currentRules = rules;
-println("here <rules> and <currentRules>");
+println("Executing instructions"); //here <rules> and <currentRules>");
 	if (size(currentRules) > 0)
 	{
 		/* Loop stops after 500 instructions of after no matches are left. */
