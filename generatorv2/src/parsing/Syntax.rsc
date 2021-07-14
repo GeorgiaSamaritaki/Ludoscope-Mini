@@ -2,18 +2,7 @@ module parsing::Syntax
 
 import ParseTree;
 
-lexical LAYOUT 
-	= [\t\r\ ]
-	| ^ Comment Newlines
-	> Comment //nested in code
-	;
-layout LAYOUTLIST = LAYOUT* !>> [\t\r\ )];
-
-
-lexical Comment = @category="Comment" "(" (![()]|Comment)+ ")";
-lexical Newline = [\n];
-lexical Newlines = Newline+ !>> [\n];
-lexical SectionDelimiter = [=]+ Newlines;
+layout Whitespace = [\t-\n\r\ ]*;
 
 lexical BOOLEAN
 	= @category="Boolean" "true" | "false";
@@ -22,7 +11,7 @@ lexical NAME
   = @category="Name" ([a-zA-Z_$.] [a-zA-Z0-9_$.]* !>> [a-zA-Z0-9_$.]) \ Keywords;
 
 lexical CHAR
-  = @category="Character" ([a-zA-Z0-9_$.]);
+  = @category="Character" [a-zA-Z0-9_$|~!@#$%^&*+-.];
 
 
 lexical COLORCODE
@@ -37,87 +26,109 @@ lexical FLOAT
 lexical STRING
   = ![\"]*;
 
-keyword SectionKeyword =  'NAME' | 'ALPHABET' | 'RULES' | 'RECIPE' | 'CONSTRAINTS';
+lexical EMPTY = [\n] | " " | "" | "\t"; //whitespace
 
-//'RULES' | 'OBJECTS' | 'LEGEND' | 'COLLISIONLAYERS' | 'SOUNDS' | 'WINCONDITIONS' | 'LEVELS'
-keyword PreludeKeyword 
-	= 'title' | 'author' | 'homepage' | 'color_palette' | 'again_interval' | 'background_color' 
-	| 'debug' | 'flickscreen' | 'key_repeat_interval' | 'noaction' | 'norepeat_action' | 'noundo'
-	| 'norestart' | 'realtime_interval' | 'require_player_movement' | 'run_rules_on_level_start' 
-	| 'scanline' | 'text_color' | 'throttle_movement' | 'verbose_logging' | 'youtube ' | 'zoomscreen';
-//keyword LegendOperation = 'or' | 'and';
-//
-//keyword Directional = 'up' | 'down' | 'right' | 'left' ;
-//keyword Moving = 'moving';
-//keyword Orientiation = 'vertical' | 'horizontal';
-//keyword No = 'no';
+lexical ConstraintKeywords = "on exit" | "resolvable";
+keyword Keywords =  'module' | 'recipe' | 'alphabet' | 'contraint' | 'options' | 'pipeline';
 
-keyword Keywords = SectionKeyword | PreludeKeyword; 
-// | LegendOperation;
-
-start syntax LDGame
- 	= game: Prelude Section+
- 	| empty: Newlines
- 	;
-
-syntax Prelude
-	= prelude: PreludeData+
-	| empty: Newlines
-	;
-
-syntax PreludeData
-	= prelude_data: PreludeKeyword STRING* Newlines
-	;
-
-syntax Section
- 	= name: Name
- 	| alphabet: Alphabet
- 	| rules: Rules
- 	| recipe: Recipe
- 	| constraints: Constraints
- 	| empty: SectionDelimiter? SectionKeyword Newlines SectionDelimiter?
- 	; 	
- 	
-syntax Name
-	= name: Newlines '#NAME' Newlines NAME name
-	;
+start syntax Pipeline 
+	= pipeline: "pipeline" NAME pipeline_name "{" 
+		Alphabet? 
+	 	Options? 
+	 	Module+ 
+	 "}";
 
 syntax Alphabet
-	= name: Newlines '#NAME' Newlines Alphabet_entry+
+	= alphabet: "alphabet" "{" SymbolInfo+  symbols "}"
 	;
 	
-syntax Alphabet_entry
- = alphabet_entry: NAME name CHAR symbol COLORCODE color
+syntax SymbolInfo
+ = symbolInfo: NAME name CHAR abbreviation COLORCODE color
  ;
+ 
+syntax Options
+	= options: "options" "{"
+	"size:" INTEGER height INTEGER width
+	("tiletype:" CHAR tiletype)?
+	"}"
+	;
+
+syntax Module
+    = modul: "module" NAME name "{" 
+	Rules? 
+ 	Recipe? 
+ 	Constraint+? 
+	"}"
+	| empty: ;
 
 syntax Rules
-	= rules: Newlines '#RULES' Newlines Rule+
+	= rules: 'rules' "{" Rule+ rules"}"
 	;
 	
 syntax Rule
 	= rule: 
-			NAME name ":" 
-			Pattern leftHand "-\>" 
-			Pattern rightHands;
+		NAME name ":" 
+		Pattern leftHand "-\>" 
+		Pattern rightHand ";"
+	| empty: 
+	;
 
 lexical Pattern 
-	= content: STRING
-	| empty: 
+	= content: STRING s
 	;
 	
 syntax Recipe
-    = recipe: Newlines '#RECIPE' Newlines Call+
+    = recipe: 'recipe' "{" Call+ calls "}"
 	;
 	
 syntax Call
-   	= rulename: NAME ruleName |
-   	  createGraph: CreateGraph;
+   	= rulename: NAME ruleName ";"
+   	| createGraph: CreateGraph graph ";"
+	| empty: ";"   
+	| empty:   
+	;
    	  
 syntax CreateGraph
-    = createPath: "CreatePath" "(" CHAR CHAR")";
+    = createPath: "CreatePath" "(" CHAR CHAR ")";
 
-syntax Constraints
-    = constrains: Newlines '#Constraints' Newlines Constraint+;
-    
 syntax Constraint
-	= ;//Boolean expressions?
+    = constraint: 
+    ConstraintType type "constraint" 
+    NAME constraint_name ":"  
+    Expression ";";
+    
+syntax ConstraintType
+	= onexit: "on exit"
+	| resolable: "resolvable"
+	| none: "";
+
+syntax Expression
+	= e_val: Value val
+	| o_par: "(" Expression exp ")"
+	| e_not: "!" Expression exp
+	> left
+	  ( e_lt: Expression lhs "\<" Expression rhs
+	  | e_gt: Expression lhs "\>" Expression rhs
+	  | e_le: Expression lhs "\<=" Expression rhs
+	  | e_ge: Expression lhs "\>=" Expression rhs
+	  | e_neq: Expression lhs "!=" Expression rhs
+	  | e_eq: Expression lhs "==" Expression rhs
+	  )
+	;
+syntax Value
+	= name: NAME name
+	| boolean: BOOLEAN bool
+	;
+	
+//////////////////////////////////////////////////	
+//LD parsers
+//////////////////////////////////////////////////
+
+public start[Pipeline] LD_parse(str src) = 
+  parse(#start[Pipeline], src);
+
+public start[Pipeline] LD_parse(str src, loc file) = 
+  parse(#start[Pipeline], src, file);
+  
+public start[Pipeline] LD_parse(loc file) =
+ parse(#start[Pipeline], file);

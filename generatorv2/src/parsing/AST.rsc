@@ -4,38 +4,66 @@ module parsing::AST
 import parsing::Syntax;
 import ParseTree;
 
-data Program
- = program(int randomseed, list[Module] modules);
+data Pipeline
+ 	= pipeline(int randomseed, 
+ 	Alphabet alphabet, 
+ 	Options options,
+ 	list[Module] modules);
  
+data Alphabet
+	= alphabet(list[SymbolInfo] symbols);
+	
+data SymbolInfo
+	= symbolInfo(
+			str name, 
+			str abbreviation,
+			str color);
+data Options
+	= options(
+		int height,
+		int width,
+		str tiletype
+	);
+
 data Module 
- = modul(
+ 	= modul(
  		str name, 
- 		list[Contraint] constraints, 
- 		list[Rule] rules, 
- 		Recipe recipe
+ 		Rules rules, 
+ 		Recipe recipe,
+ 		list[Contraint] constraints
  	);
- 	
+
+data Rules 
+	= rules(list[Rule] rules);
+	
 data Rule
 	= rule(
 		str name, 
 		Pattern leftHand, 
-		Pattern rightHands
+		Pattern rightHand
 	);
 		
 data Pattern
-	= pattern(list[list [char]] pattern); // can have multiple lines
+	= pattern(str pattern); //will initially be a strin
+	
+data Recipe
+ 	= recipe(list[Call] calls);
+ 
+data Call
+	= rulename(str name)
+	| createGraph(CreateGraph graph) 
+	;
+
+data CreateGraph
+	= createPath(str a, str b)
+	;
 	
 data Contraint 
- = constraint(Expression exp); //maybe make it boolean?
+ 	= constraint(Expression exp); //maybe make it boolean?
 
-data Line
- = line(str l);
- 
-data Recipe
- = recipe(list[str] rule_names);
- 
+data Expression
+	= expression();
+	
 data Name 
- = name(ID id);
+ 	= name(str val);
  
-data ID
- = id(str val);
