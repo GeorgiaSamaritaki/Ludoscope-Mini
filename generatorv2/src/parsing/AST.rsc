@@ -4,14 +4,31 @@ module parsing::AST
 import parsing::Syntax;
 import ParseTree;
 
+////////////////////////////////////////////////
+// APIs
+////////////////////////////////////////////////
+
+public parsing::AST::Pipeline implodePipeline(Tree tree)
+  = implode(#parsing::AST::Pipeline, tree);
+  
+public parsing::AST::Pipeline parsePipelineToAST(loc location)
+  = implodePipeline(LD_parse(location));
+  
+
+////////////////////////////////////////////////
+// AST
+////////////////////////////////////////////////
+
 data Pipeline
- 	= pipeline(int randomseed, 
- 	Alphabet alphabet, 
- 	Options options,
- 	list[Module] modules);
+ 	= pipeline(
+ 	int randomseed, 
+ 	Alphabet alphabet);
+ 	//Options options,
+ 	//list[Module] modules);
  
 data Alphabet
-	= alphabet(list[SymbolInfo] symbols);
+	= alphabet();
+	//list[SymbolInfo] symbols);
 	
 data SymbolInfo
 	= symbolInfo(

@@ -29,27 +29,32 @@ lexical STRING
 lexical EMPTY = [\n] | " " | "" | "\t"; //whitespace
 
 lexical ConstraintKeywords = "on exit" | "resolvable";
-keyword Keywords =  'module' | 'recipe' | 'alphabet' | 'contraint' | 'options' | 'pipeline';
+keyword Keywords = 'seed' | 'module' | 'recipe' | 'alphabet' | 'contraint' | 'options' | 'pipeline';
 
 start syntax Pipeline 
 	= pipeline: "pipeline" NAME pipeline_name "{" 
+		("seed:" INTEGER randomseed ";")?
 		Alphabet? 
 	 	Options? 
 	 	Module+ 
 	 "}";
 
 syntax Alphabet
-	= alphabet: "alphabet" "{" SymbolInfo+  symbols "}"
+	= alphabet: 
+	"alphabet" "{" 
+		SymbolInfo+  symbols 
+	"}"
 	;
 	
 syntax SymbolInfo
- = symbolInfo: NAME name CHAR abbreviation COLORCODE color
- ;
+ 	= symbolInfo: NAME name CHAR abbreviation COLORCODE color ";"
+ 	| empty: 
+ 	;
  
 syntax Options
 	= options: "options" "{"
-	"size:" INTEGER height INTEGER width
-	("tiletype:" CHAR tiletype)?
+	"size:" INTEGER height "x" INTEGER width ";"
+	("tiletype:" CHAR tiletype ";")?
 	"}"
 	;
 

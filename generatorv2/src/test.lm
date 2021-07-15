@@ -1,29 +1,35 @@
-//add representation for off map
-// off-map [X]
-#NAME
-first_module
+pipeline a {
+	seed: 12;
+	
+	alphabet {
+		floor f #010101 
+		wall  * #111111
+		entrance  e #123456
+		exit  x #000000
+		pillar | #qwqqwq
+		water ~ #123123
+	}	
+	
+	options {
+		size: 6x6;
+		tiletype: f;
+	}
+	
+	module first_module {
+		rules {
+			addEntrance: 
+			*,
+			f 
+			-> 
+			e,
+			f;
+			addExit: 
+			*f 
+			-> 
+			xf;
+		}
+	}
+	
+	
+}
 
-#ALPHABET
-floor f #010101 
-wall  * #111111
-entrance  e #111111
-exit  x #111111
-pillar | #qwqqwq
-water ~ #niceee
-
-#Options
-size 6x6
-tiletype f
-
-#RULES
-addEntrance: *f -> ef
-addExit: *f -> xf
-
-#RECIPE
-addEntrance
-addExit
-createPath(e,x)
-
-#CONSTRAINTS
-entrance == 1
-exit == 1
