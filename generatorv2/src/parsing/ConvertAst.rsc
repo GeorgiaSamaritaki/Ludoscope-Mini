@@ -4,22 +4,68 @@ import parsing::AST;
 import parsing::DataStructures;
 
 import IO;
-public TransformationArtifact transformSyntaxTree(SyntaxTree syntaxTree)
-{
+public LudoscopeProject transformPipeline(Pipeline project){
 
-	println("in transformsyntaxtree");
+	Alphabet alphabet = project.alphabet;
+	Options options = project.options;
+	list[LudoscopeModule] modules = getModules(project.modules); 
 
-	//LudoscopeProject project = ludoscopeProject([], ());
-	TransformationArtifact artifact = transformationArtifact(undefinedProject(), []);
-	//
-	//artifact = transformProject(artifact, syntaxTree);
-	//artifact = transformAplhabets(artifact, syntaxTree);
-	//artifact = transformGrammars(artifact, syntaxTree);
-	//artifact = transformRecipes(artifact, syntaxTree);
-	//artifact = transformModels(artifact, syntaxTree);
-	//artifact = transformProperties(artifact, syntaxTree);
-	//
-	//artifact = addEmptyRecipes(artifact);
-	
-	return artifact;
+	return ludoscopeProject(alphabet, options, modules, []);
 }
+
+private list[LudoscopeModule] getModules(list[Module] modules){
+	list[LudoscopeModule] ldModules = [];
+	
+	visit (modules){
+		case modul(Name name, 
+			 		Rules rules,
+			 		Recipe recipe,
+			 		list[Constraint] constraints) :
+		{	
+			ldModules += ludoscopeModule(name.val,
+									   getRules(rules.rules),
+									   recipe.calls,
+									   constraints);
+		}
+	}
+	return ldModules;
+}
+
+private RuleMap getRules(list[Rule] rules){
+	RuleMap ruleMap = ();
+	
+	for(Rule r <- rules){
+		TileMap lhs = patternToTilemap(r.leftHand.patterns),
+				rhs = patternToTilemap(r.rightHand.patterns);
+		ruleMap[r.name.val] = ludoscopeRule(lhs,rhs);
+	}
+			
+	return ruleMap;
+}
+
+
+private TileMap patternToTilemap(list[str] pl){
+	list[list[str]] tileMap = [];
+	list[str] currentList = [];
+	
+	for(str c <- pl){
+		if(c == ","){
+			tileMap += [currentList];
+			currentList = [];
+		}else 
+			currentList += c;
+	}
+	
+	tileMap += [currentList];
+	return tileMap;
+}
+
+
+
+
+
+
+
+
+
+
