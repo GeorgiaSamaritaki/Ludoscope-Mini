@@ -23,12 +23,13 @@ alias ModuleHierarchy = list[set[LudoscopeModule]];
 alias Location =  tuple[int x, int y];
 
 data ExecutionArtifact =
-	executionArtifact(OutputMap output,
-										TileMap currentState,
-										ExecutionHistory history,
-										//PropertyReport propertyReport,
-										//map[str,tuple[int,int]] references,
-										list[ExecutionError] errors)
+	executionArtifact(
+		OutputMap output,
+		TileMap currentState,
+		ExecutionHistory history,
+		//PropertyReport propertyReport,
+		//map[str,tuple[int,int]] references,
+		list[ExecutionError] errors)
 	| emptyExecutionArtifact();
 	
 data PreparationArtifact =

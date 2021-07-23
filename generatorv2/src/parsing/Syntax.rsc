@@ -2,110 +2,113 @@ module parsing::Syntax
 
 import ParseTree;
 
-layout Whitespace = [\t-\n\r\ ]*;
+layout Whitespace = [\t-\r\ ]*;
 
 lexical BOOLEAN
 	= @category="Boolean" "true" | "false";
 
 lexical NAME
-  = @category="Name" ([a-zA-Z_$.] [a-zA-Z0-9_$.]* !>> [a-zA-Z0-9_$.]) \ Keywords;
+  = @category="Name" name: 
+  ([a-zA-Z_$] [a-zA-Z0-9_$]* !>> [a-zA-Z0-9_$]) \ Keywords ;
+
+lexical STRING
+  = @category="Name" ![\n]+ >> [\n];
 
 lexical CHAR
-  = @category="Character" [a-zA-Z0-9_$|~!@#$%^&*+-.];
-
-
+  = @category="Character" [a-zA-Z_$.*~|];
+ 
+lexical PATTERNCHAR
+	= CHAR | ",";
+	
 lexical COLORCODE
 	= @category="ColorCode" "#" [0-9A-Z]*;
  
 lexical INTEGER
-  = ("-"?[0-9]+);
+  = @category="Integer" "-"?[0-9]+;
   
 lexical FLOAT
   = INTEGER ([.][0-9]+?)? "f";
     
-lexical STRING
-  = ![\"]*;
 
-lexical EMPTY = [\n] | " " | "" | "\t"; //whitespace
-
-lexical ConstraintKeywords = "on exit" | "resolvable";
-keyword Keywords = 'seed' | 'module' | 'recipe' | 'alphabet' | 'contraint' | 'options' | 'pipeline';
+lexical ConstraintKeywords 
+	= @categoty = "ConstraintKeywords"	"on exit" | "resolvable";
+	
+keyword Keywords = 'module' | 'recipe' | 'alphabet' | 'constraint' | 'options' | 'pipeline' | 'seed';
 
 start syntax Pipeline 
-	= pipeline: "pipeline" NAME pipeline_name "{" 
-		("seed:" INTEGER randomseed ";")?
-		Alphabet? 
-	 	Options? 
-	 	Module+ 
+	= pipeline: "pipeline" "{" 
+		Alphabet alphabet
+	 	Options options 
+	 	Module+ modules
 	 "}";
 
 syntax Alphabet
 	= alphabet: 
 	"alphabet" "{" 
-		SymbolInfo+  symbols 
+		SymbolInfo+ symbols 
 	"}"
 	;
-	
+
 syntax SymbolInfo
  	= symbolInfo: NAME name CHAR abbreviation COLORCODE color ";"
- 	| empty: 
  	;
  
 syntax Options
 	= options: "options" "{"
+	"seed:" INTEGER randomseed ";"
 	"size:" INTEGER height "x" INTEGER width ";"
 	("tiletype:" CHAR tiletype ";")?
 	"}"
 	;
 
 syntax Module
-    = modul: "module" NAME name "{" 
-	Rules? 
- 	Recipe? 
- 	Constraint+? 
+    = modul: "module"  NAME name "{"
+	Rules rules
+ 	Recipe recipe
+ 	Constraint* constraints
 	"}"
-	| empty: ;
+	;
 
 syntax Rules
-	= rules: 'rules' "{" Rule+ rules"}"
+	= rules: "rules" "{" 
+	Rule+ rules
+	"}"
 	;
-	
+
 syntax Rule
 	= rule: 
 		NAME name ":" 
-		Pattern leftHand "-\>" 
-		Pattern rightHand ";"
-	| empty: 
+		Pattern leftHand "-\>" Pattern rightHand ";"
 	;
 
-lexical Pattern 
-	= content: STRING s
+syntax Pattern 
+	= pattern: PATTERNCHAR+ patterns
 	;
 	
 syntax Recipe
-    = recipe: 'recipe' "{" Call+ calls "}"
+    = recipe: "recipe" "{" 
+    Call+ calls 
+    "}"
 	;
 	
 syntax Call
    	= rulename: NAME ruleName ";"
    	| createGraph: CreateGraph graph ";"
-	| empty: ";"   
-	| empty:   
 	;
    	  
 syntax CreateGraph
-    = createPath: "CreatePath" "(" CHAR CHAR ")";
+    = createPath: "CreatePath" "(" CHAR "," CHAR ")";
 
 syntax Constraint
     = constraint: 
-    ConstraintType type "constraint" 
+    ConstraintType typ "constraint" 
     NAME constraint_name ":"  
     Expression ";";
     
 syntax ConstraintType
 	= onexit: "on exit"
 	| resolable: "resolvable"
-	| none: "";
+	;
 
 syntax Expression
 	= e_val: Value val
@@ -121,8 +124,9 @@ syntax Expression
 	  )
 	;
 syntax Value
-	= name: NAME name
-	| boolean: BOOLEAN bool
+	= integer: INTEGER integer
+	| boolean: BOOLEAN boolean
+	| char: CHAR char
 	;
 	
 //////////////////////////////////////////////////	

@@ -1,0 +1,44 @@
+pipeline {
+	
+	alphabet {
+		floor f #010101; 
+		wall * #111111;
+		entrance  e #123456;
+		exit  x #000000;
+		pillar | #123123;
+		water ~ #123123;
+	}	
+	
+	options {
+		seed: 12;
+		size: 6x6;
+		tiletype: f;
+	}
+	
+	module firstModule {
+		rules {
+			addEntrance: 
+			*,
+			f 
+			->  
+			e,
+			f;
+			addExit: 
+			*f 
+			-> 
+			xf;
+		}
+		
+		recipe {
+			addEntrance;
+			addExit;
+			CreatePath(e,x);
+		}
+		
+		on exit constraint a: e == true;
+		
+	}
+	
+	
+}
+

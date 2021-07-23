@@ -28,12 +28,12 @@ public TransformationArtifact transformProject(TransformationArtifact artifact,
 			list[str] cleanInputs = [removeQuotes(input) | str input <- inputs];
 			artifact.project.modules +=
 				[ludoscopeModule(cleanGrammarName(name), 
-												cleanInputs,
-												cleanAlphabetName(alphabet),
-												[[]], 
-												(), 
-												[],
-												[])];
+				cleanInputs,
+				cleanAlphabetName(alphabet),
+				[[]], 
+				(), 
+				[],
+				[])];
 		}
 	}
 	
