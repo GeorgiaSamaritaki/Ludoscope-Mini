@@ -32,7 +32,7 @@ public void main(){
 	      menu(
 	        "Lm: basic functions",
 	        [ action("Parse", parseProject),
-	          action("Execute project", executeProject)
+	          action("Execute project", runProject)
 	          //action("Execute and save result", executeProjectToFile)
 	        ]
 	      )

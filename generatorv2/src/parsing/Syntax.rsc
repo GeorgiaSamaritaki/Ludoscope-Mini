@@ -57,7 +57,7 @@ syntax Options
 	= options: "options" "{"
 	"seed:" INTEGER randomseed ";"
 	"size:" INTEGER height "x" INTEGER width ";"
-	("tiletype:" CHAR tiletype ";")?
+	"tiletype:" CHAR tiletype ";"
 	"}"
 	;
 

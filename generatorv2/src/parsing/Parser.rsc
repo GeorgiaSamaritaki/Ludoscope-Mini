@@ -1,8 +1,6 @@
 module parsing::Parser
 
 import IO;
-import Exception;
-import List;
 import ParseTree;
 import String;
 
@@ -12,14 +10,15 @@ import errors::Parsing;
 import parsing::ConvertAst;
 import parsing::Syntax;
 
-import Execution::execution;
+import execution::Execution;
+import execution::DataStructures;
 
 public void parseProject(Tree tree, loc projectFile){
 	println("Parse is called on: <projectFile>");
     AbstractPipeline project = implodePipeline(tree);
 }
 	
-public LudoscopeProject parseAndCheck(Tree tree){
+private LudoscopeProject parseAndCheck(Tree tree){
 	AbstractPipeline project = implodePipeline(tree);
 	
 	LudoscopeProject artifact = transformPipeline(project);
@@ -27,11 +26,11 @@ public LudoscopeProject parseAndCheck(Tree tree){
 	return artifact;	
 } 
 
-public void executeProject(Tree tree, loc projectFile){
+public void runProject(Tree tree, loc projectFile){
 	LudoscopeProject artifact = parseAndCheck(tree);
 	println("parsed and checked");
 		
-	ExecutionArtifact newArtifact = executeProject(artifact.pipeline);
+	ExecutionArtifact newArtifact = executeProject(artifact);
 	//iprintln(newArtifact.output);
 	//return;
 	//}
