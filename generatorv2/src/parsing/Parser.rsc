@@ -13,6 +13,9 @@ import parsing::Syntax;
 import execution::Execution;
 import execution::DataStructures;
 
+import util::Math;
+import utility::TileMap;
+
 public void parseProject(Tree tree, loc projectFile){
 	println("Parse is called on: <projectFile>");
     AbstractPipeline project = implodePipeline(tree);
@@ -29,9 +32,10 @@ private LudoscopeProject parseAndCheck(Tree tree){
 public void runProject(Tree tree, loc projectFile){
 	LudoscopeProject artifact = parseAndCheck(tree);
 	println("parsed and checked");
-		
+	
+	arbSeed(artifact.options.randomseed);
 	ExecutionArtifact newArtifact = executeProject(artifact);
-	//iprintln(newArtifact.output);
+	printTileMap(newArtifact.output);
 	//return;
 	//}
 	//if (newArtifact.errors == []){
@@ -44,3 +48,4 @@ public void runProject(Tree tree, loc projectFile){
 	//	println(errorToString(error));
 	//}
 }
+

@@ -42,3 +42,7 @@ data LudoscopeRule
 		TileMap lhs,
 		TileMap rhs
 	);
+
+data Coordinates
+	= coordinates(int x, int y);
+	

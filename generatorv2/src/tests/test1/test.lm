@@ -11,12 +11,34 @@ pipeline {
 	
 	options {
 		seed: 12;
-		size: 6x6;
+		size: 10x10;
 		tiletype: f;
 	}
 	
 	module firstModule {
 		rules {
+			addWalls:
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff
+			->
+			**********,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			**********;
 			addEntrance: 
 			*,
 			f 
@@ -24,12 +46,13 @@ pipeline {
 			e,
 			f;
 			addExit: 
-			*f 
+			f* 
 			-> 
-			xf;
+			fx;
 		}
 		
 		recipe {
+			addWalls;
 			addEntrance;
 			addExit;
 			CreatePath(e,x);

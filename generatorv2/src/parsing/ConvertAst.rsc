@@ -4,6 +4,7 @@ import parsing::AST;
 import parsing::DataStructures;
 
 import IO;
+import List;
 public LudoscopeProject transformPipeline(Pipeline project){
 
 	Alphabet alphabet = project.alphabet;
@@ -22,9 +23,11 @@ private list[LudoscopeModule] getModules(list[Module] modules){
 			 		Recipe recipe,
 			 		list[Constraint] constraints) :
 		{	
+			RuleMap rulemap = getRules(rules.rules);
+			RecipeList recipe =  checkRecipeList(recipe.calls, rulemap);
 			ldModules += ludoscopeModule(name.val,
-									   getRules(rules.rules),
-									   recipe.calls,
+									   rulemap,
+									   recipe,
 									   constraints);
 		}
 	}
@@ -37,12 +40,23 @@ private RuleMap getRules(list[Rule] rules){
 	for(Rule r <- rules){
 		TileMap lhs = patternToTilemap(r.leftHand.patterns),
 				rhs = patternToTilemap(r.rightHand.patterns);
+		if(!areSameDimensions(lhs,rhs)) 
+			println("Error: Incorrect size length lhs rhs for rule <r.name> \n <lhs> \n <rhs> ");
 		ruleMap[r.name.val] = ludoscopeRule(lhs,rhs);
 	}
 			
 	return ruleMap;
 }
 
+private RecipeList checkRecipeList(RecipeList calls, RuleMap rules){
+	visit (calls){
+		case rulename(str name) : 
+			if(name notin rules) 
+					println("Error: Rule <name> specified in recipe
+						does not exist in rules");
+	}
+	return calls;
+}
 
 private TileMap patternToTilemap(list[str] pl){
 	list[list[str]] tileMap = [];
@@ -60,8 +74,9 @@ private TileMap patternToTilemap(list[str] pl){
 	return tileMap;
 }
 
-
-
+private bool areSameDimensions(list[list[str]] lista, list[list[str]] listb){
+	return all(int i <- [0 .. size(lista)], size(lista[i]) == size(listb[i])) && size(lista) == size(listb);	
+}
 
 
 

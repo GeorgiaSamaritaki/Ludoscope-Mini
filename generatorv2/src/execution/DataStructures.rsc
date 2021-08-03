@@ -26,13 +26,16 @@ data ExecutionArtifact =
 		TileMap output,
 		TileMap currentState,
 		ExecutionHistory history,
-		list[ExecutionError] errors)
+		list[str] errors)
 	| emptyExecutionArtifact();
 	
-alias ExecutionHistory = list[Entry];
+alias ExecutionHistory = list[HistoryEntry];
 
-data Entry = 
-	step(TileMap tileMap, 
-			str moduleName, 
-			str ruleName, 
-			int rightHand);
+data HistoryEntry = 
+	entry(
+		TileMap before,
+		TileMap after,
+		Coordinates coordinates,
+		str moduleName, 
+		str ruleName);
+		
