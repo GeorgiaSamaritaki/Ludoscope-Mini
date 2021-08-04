@@ -25,9 +25,17 @@ data ExecutionArtifact =
 	executionArtifact(
 		TileMap output,
 		TileMap currentState,
+		list[Graph] graphs,
 		ExecutionHistory history,
 		list[str] errors)
 	| emptyExecutionArtifact();
+
+data Graph =
+	graph(
+		str from,
+		str To,
+		list[Coordinates] path
+	);
 	
 alias ExecutionHistory = list[HistoryEntry];
 
@@ -35,7 +43,7 @@ data HistoryEntry =
 	entry(
 		TileMap before,
 		TileMap after,
-		Coordinates coordinates,
+		set[Coordinates] coordinates,
 		str moduleName, 
 		str ruleName);
 		

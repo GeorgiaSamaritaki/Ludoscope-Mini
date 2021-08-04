@@ -17,7 +17,7 @@ public ExecutionArtifact executeProject(LudoscopeProject project){
 								project.options.height,
 								project.options.width,
 								project.options.tiletype);
-	ExecutionArtifact artifact = executionArtifact([], currentState, [], []);
+	ExecutionArtifact artifact = executionArtifact([], currentState, [], [], []);
 	
 	for (LudoscopeModule \module <- project.modules){
 			artifact = executeModule(artifact, \module);

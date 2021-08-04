@@ -16,9 +16,9 @@ import List;
 import util::Math;
 import parsing::DataStructures;
 
-public list[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
+public set[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
 {
-	list[Coordinates] matches = [];
+	set[Coordinates] matches = {};
 	int patternWidth = size(pattern[0]);
 	int patternHeight = size(pattern);
 	int gridHeight = size(grid);
@@ -42,7 +42,7 @@ public list[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
 			}
 			if (match)
 			{
-				matches += [coordinates(widthOffset, heightOffset)];
+				matches += {<widthOffset, heightOffset>};
 			}
 		}
 	}

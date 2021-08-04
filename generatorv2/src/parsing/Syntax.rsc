@@ -65,7 +65,7 @@ syntax Module
     = modul: "module"  NAME name "{"
 	Rules rules
  	Recipe recipe
- 	Constraint* constraints
+ 	Constraint+ constraints
 	"}"
 	;
 
@@ -108,6 +108,7 @@ syntax Constraint
 syntax ConstraintType
 	= onexit: "on exit"
 	| resolable: "resolvable"
+	| nonresolvable: "non resolvable" 
 	;
 
 syntax Expression
@@ -127,6 +128,7 @@ syntax Value
 	= integer: INTEGER integer
 	| boolean: BOOLEAN boolean
 	| char: CHAR char
+	| path: "path"
 	;
 	
 //////////////////////////////////////////////////	

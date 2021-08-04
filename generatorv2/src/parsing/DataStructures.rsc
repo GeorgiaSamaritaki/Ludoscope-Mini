@@ -14,6 +14,7 @@ alias RecipeList = list[Call];
 
 alias History = list[Transformation];
 alias Transformation = str;
+alias Coordinates = tuple[int x, int y];
 
 data TransformationArtifact
 	= transformationArtifact(
@@ -43,6 +44,4 @@ data LudoscopeRule
 		TileMap rhs
 	);
 
-data Coordinates
-	= coordinates(int x, int y);
 	

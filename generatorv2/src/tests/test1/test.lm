@@ -7,6 +7,7 @@ pipeline {
 		exit  x #000000;
 		pillar | #123123;
 		water ~ #123123;
+		path p #000000;
 	}	
 	
 	options {
@@ -59,6 +60,7 @@ pipeline {
 		}
 		
 		on exit constraint a: e == true;
+		non resolvable constraint b: path == true; 
 		
 	}
 	

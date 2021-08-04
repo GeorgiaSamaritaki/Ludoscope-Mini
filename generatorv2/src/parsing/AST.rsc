@@ -94,6 +94,7 @@ data Expression
 data ConstraintType
 	= onexit() 
 	| resolvable()
+	| nonresolvable()
 	;
 	
 data Value

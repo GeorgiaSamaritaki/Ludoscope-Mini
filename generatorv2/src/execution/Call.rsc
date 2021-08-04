@@ -2,11 +2,13 @@ module execution::Call
 
 import IO;
 import List;
+import Set;
 
 import parsing::DataStructures;
 import parsing::AST;
 import execution::DataStructures;
 import execution::Matching;
+import utility::TileMap;
 
 public ExecutionArtifact executeCall(
 	ExecutionArtifact artifact, 
@@ -17,7 +19,7 @@ public ExecutionArtifact executeCall(
 	LudoscopeRule rule = \module.rules[name];
 	
 	//Find if the pattern matches
-	list[Coordinates] matches = 
+	set[Coordinates] matches = 
 		findPatternInGrid(artifact.currentState, rule.lhs);
 	
 	if(isEmpty(matches)) {
@@ -29,10 +31,10 @@ public ExecutionArtifact executeCall(
 	Coordinates match = getOneFrom(matches); //defined by the arbSeed function
 	artifact.output = replacePattern(artifact.currentState, rule.rhs, match);
 	
-	artifact.history += [entry(
+	artifact.history += [ entry(
 		artifact.currentState,
 		artifact.output,
-		match,
+		getAllCoordinates(match,patternSize(rule.lhs)), //every tile affected
 		\module.name, 
 		name)];
 	
@@ -42,9 +44,26 @@ public ExecutionArtifact executeCall(
 public ExecutionArtifact executeCall(
 	ExecutionArtifact artifact, 
 	LudoscopeModule \module, 
-	createGraph(CreateGraph graph)
+	createGraph(CreateGraph g)
 ){
-	println("createGraph");
+	list[Coordinates] path = getPath(artifact.currentState,g.a,g.b);
 	
+	println("Path <path>");
+    if(path == []) 
+    	println("There is no viable path from <g.a> to <g.b>");
+    else
+    	artifact.graphs += [graph(g.a, g.b, path)];
+    
 	return artifact;
 }
+
+
+
+
+
+
+
+
+
+
+
