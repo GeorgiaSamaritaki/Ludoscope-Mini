@@ -20,15 +20,15 @@ public tuple[int,int] patternSize(list[list[str]] \map){
 	return <size(\map),size(\map[0])>;
 }
 
-public set[tuple[int,int]] getAllCoordinates(
+public list[tuple[int,int]] getAllCoordinates(
 	Coordinates c, 
 	tuple[int height,int width] size){ 
 	
-	set[tuple[int,int]] cset = {};
+	list[tuple[int,int]] cset = [];
 	for(int i <-[0..size.width])
 		for(int j<-[0..size.height])
-			cset += {<c.x + j, c.y + i>};
-	return cset;
+			cset += [<c.y + i, c.x + j>];
+	return cset; 
 	//return [[<c.x + i, c.y + j> | int i <- [0 .. height]] | int j <- [0 .. width]];;
 }
 
@@ -40,13 +40,34 @@ public list[Coordinates] getPath(list[list[str]] \map, str a, str b){
 	list[Coordinates] ca = findInMap(\map,a), 
 				cb = findInMap(\map,b);
 	if(ca == [] || cb == []) return [];
-	return getPath1(ca[0],cb[0],[],[],\map);
+	return getPath1(ca[0],cb[0],[],\map);
 }
 
-private str getTile(list[list[str]] \map, Coordinates c){
+public str getTile(list[list[str]] \map, Coordinates c){
 	if(c.x >= size(\map) || c.y >= size(\map[0])) return "";
 	return \map[c.x][c.y];
 }
+
+public TileMap replacePattern(TileMap grid, TileMap pattern, Coordinates coordinates){
+	int patternWidth = size(pattern[0]);
+	int patternHeight = size(pattern);
+	
+	for (int i <- [0 .. patternWidth])
+		for (int j <- [0 .. patternHeight])
+			grid[j + coordinates.y][i + coordinates.x] = 
+				pattern[j][i];
+				
+	return grid;		
+}
+
+public TileMap changeTile(str s, Coordinates c, TileMap grid){
+ 	grid[c.y][c.x] = s;
+ 	return grid;
+}
+
+//////////////////////////////////////////////
+//Utility
+//////////////////////////////////////////////
 
 private bool isReachable(Coordinates c, list[list[str]] \map){
 	if(c.x > size(\map) || c.y > size(\map[0])) return false;
@@ -63,41 +84,33 @@ private list[Coordinates] getPath1(
 						Coordinates current, 
 						Coordinates target, 
 						list[Coordinates] path,
-						list[Coordinates] visited,
 						list[list[str]] \map
 						){
-	println("current <current> target <target>");
 	
 	if(current == target)  return path;
 	
 	if(current in path) return [];
-	if(current in visited) return [];
+	println("current ||<current>|| target <target> and path <path>");
 	path += [current];
-	visited += [current];
-	
+
 	Coordinates r = getRight(current), l = getLeft(current),
 				u = getUp(current), d = getDown(current);
 	list[Coordinates] p1, p2, p3, p4;
 	if(isReachable(r,\map)){
-		p1 = getPath1(r,target,path,visited,\map);
+		p1 = getPath1(r,target,path,\map);
 		if(p1 != []) return p1;
 	}
 	if(isReachable(l,\map)) {
-		p2 = getPath1(l,target,path,visited,\map);
+		p2 = getPath1(l,target,path,\map);
 		if(p2 != []) return p2;
 	}
 	if(isReachable(u,\map)) {
-		p3 =  getPath1(u,target,path,visited,\map);
+		p3 =  getPath1(u,target,path,\map);
 		if(p3 != []) return p3;
 	}
 	if(isReachable(d,\map)) {
-		p4 =  getPath1(d,target,path,visited,\map);
+		p4 =  getPath1(d,target,path,\map);
 		if(p4 != []) return p4;
 	}
 	return [];
 }
-
-
-
-
-

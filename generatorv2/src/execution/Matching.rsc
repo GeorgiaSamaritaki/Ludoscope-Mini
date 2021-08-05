@@ -49,14 +49,6 @@ public set[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
 	return matches;
 }
 
-public TileMap replacePattern(TileMap grid, TileMap pattern, Coordinates coordinates){
-	int patternWidth = size(pattern[0]);
-	int patternHeight = size(pattern);
-	
-	for (int i <- [0 .. patternWidth])
-		for (int j <- [0 .. patternHeight])
-			grid[j + coordinates.y][i + coordinates.x] = 
-				pattern[j][i];
-				
-	return grid;		
-}
+
+
+

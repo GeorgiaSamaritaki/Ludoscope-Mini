@@ -7,7 +7,6 @@ pipeline {
 		exit  x #000000;
 		pillar | #123123;
 		water ~ #123123;
-		path p #000000;
 	}	
 	
 	options {
@@ -50,13 +49,19 @@ pipeline {
 			f* 
 			-> 
 			fx;
+			addWall:
+			f,f,f,f,f,f,f,f
+			-> 
+			*,*,*,*,*,*,*,*;
+			
 		}
 		
 		recipe {
 			addWalls;
 			addEntrance;
 			addExit;
-			CreatePath(e,x);
+			path = CreatePath(e,x);
+			addWall;
 		}
 		
 		on exit constraint a: e == true;

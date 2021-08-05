@@ -8,19 +8,23 @@ import execution::DataStructures;
 import parsing::AST;
 
 import execution::Call;
+import execution::Constraints;
 
 public ExecutionArtifact executeProject(LudoscopeProject project){
 	
-	println("executeProject");
+	println("System Message: executeProject");
 	ExecutionHistory allHistory = [];
 	TileMap currentState = createTileMap(
 								project.options.height,
 								project.options.width,
 								project.options.tiletype);
-	ExecutionArtifact artifact = executionArtifact([], currentState, [], [], []);
+	ExecutionArtifact artifact = executionArtifact([], currentState, (), [], []);
 	
 	for (LudoscopeModule \module <- project.modules){
 			artifact = executeModule(artifact, \module);
+		    if(artifact.errors != []) return artifact;
+		    
+		    checkExitConstraints(artifact, \module.constraints);
 		    
 		    allHistory += artifact.history;
 		    artifact.history = [];
@@ -32,17 +36,29 @@ public ExecutionArtifact executeProject(LudoscopeProject project){
  
 public ExecutionArtifact executeModule(
 	ExecutionArtifact artifact, 
-	LudoscopeModule ldModule
+	LudoscopeModule \module 
 ){
-	println("execute module");
+	println("System Message: execute module");
 
-	RecipeList recipe = ldModule.recipe;
+	RecipeList recipe = \module.recipe;
 	for (Call call<- recipe){
-		artifact = executeCall(artifact, ldModule, call);
+		artifact = executeCall(artifact, \module , call);
+		
+		artifact = checkNonExitConstraints(artifact, \module.constraints);
+		if(artifact.errors != []) return artifact;
 		
 		artifact.currentState = artifact.output;
 	}
 	
 	return artifact;
 }
+
+
+
+
+
+
+
+
+
 

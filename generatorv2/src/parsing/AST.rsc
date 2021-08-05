@@ -68,7 +68,7 @@ data Recipe
  
 data Call
 	= rulename(str name)
-	| createGraph(CreateGraph graph) 
+	| createGraph(str graphname, CreateGraph graph) 
 	;
 
 data CreateGraph
@@ -100,7 +100,8 @@ data ConstraintType
 data Value
  	= integer(int integer)
  	| boolean(bool boolean)
- 	| char(str char);
+ 	| char(str char)
+ 	| path() ;
 	
 data Name 
  	= name(str val);

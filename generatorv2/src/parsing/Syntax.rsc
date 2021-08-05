@@ -93,7 +93,7 @@ syntax Recipe
 	
 syntax Call
    	= rulename: NAME ruleName ";"
-   	| createGraph: CreateGraph graph ";"
+   	| createGraph: NAME graphname "=" CreateGraph graph ";"
 	;
    	  
 syntax CreateGraph

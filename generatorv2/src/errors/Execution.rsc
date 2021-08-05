@@ -9,16 +9,15 @@
 
 module errors::Execution
 
+import IO;
+
 data ExecutionError
 	= moduleConnection(list[str] moduleNames);
 	
-str errorToString(moduleConnection(list[str] moduleNames))
-{
-	str errorMessage = "Execution error: the following modules didn\'t get an input:";
-	for (str moduleName <- moduleNames)
-	{
-		errorMessage += "\n <moduleName>";
-	}
+public void printError(str errormessage){
+	println("Error message: <errormessage>");
+}
 
-	return errorMessage;
+public void printSM(str systemmessage){
+	println("System Message: <systemmessage>");
 }

@@ -20,12 +20,13 @@ import errors::Execution;
 
 alias ModuleHierarchy = list[set[LudoscopeModule]];
 alias Location =  tuple[int x, int y];
+alias GraphMap = map[str, Graph];
 
 data ExecutionArtifact =
 	executionArtifact(
 		TileMap output,
 		TileMap currentState,
-		list[Graph] graphs,
+		GraphMap graphs,
 		ExecutionHistory history,
 		list[str] errors)
 	| emptyExecutionArtifact();
@@ -33,7 +34,7 @@ data ExecutionArtifact =
 data Graph =
 	graph(
 		str from,
-		str To,
+		str to,
 		list[Coordinates] path
 	);
 	
@@ -43,7 +44,7 @@ data HistoryEntry =
 	entry(
 		TileMap before,
 		TileMap after,
-		set[Coordinates] coordinates,
+		list[Coordinates] coordinates,
 		str moduleName, 
 		str ruleName);
 		

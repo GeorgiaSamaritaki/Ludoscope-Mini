@@ -31,21 +31,16 @@ private LudoscopeProject parseAndCheck(Tree tree){
 
 public void runProject(Tree tree, loc projectFile){
 	LudoscopeProject artifact = parseAndCheck(tree);
-	println("parsed and checked");
+	println("System Message: Parsed and checked");
 	
 	arbSeed(artifact.options.randomseed);
 	ExecutionArtifact newArtifact = executeProject(artifact);
-	printTileMap(newArtifact.output);
-	//return;
-	//}
-	//if (newArtifact.errors == []){
-	//else{ 
-	//errors = newArtifact.errors;
-	//
-	//
-	//println("There were errors found while parsing the project:");
-	//for (ParsingError error <- errors)
-	//	println(errorToString(error));
-	//}
+	
+	if(newArtifact.errors != []){
+		println("There were errors found while executing the project");
+	}else{
+		println("~~~~~~~~~Output~~~~~~~~~");
+		printTileMap(newArtifact.output);
+	}
 }
 
