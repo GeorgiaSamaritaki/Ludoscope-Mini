@@ -2,26 +2,30 @@ module execution::Call
 
 import List;
 import Set;
+import IO;
+import analysis::graphs::Graph;
 
-import errors::Exection;
 import utility::TileMap;
+import errors::Execution;
+
+import execution::DataStructures;
+import execution::Matching;
 
 import parsing::DataStructures;
 import parsing::AST;
-import execution::DataStructures;
-import execution::Matching;
+
 
 public ExecutionArtifact executeCall(
 	ExecutionArtifact artifact, 
 	LudoscopeModule \module, 
 	rulename(str name)
 ){
+	println("called rule <name>");
 	LudoscopeRule rule = \module.rules[name];
 	
 	//Find if the pattern matches
 	set[Coordinates] matches = 
 		findPatternInGrid(artifact.currentState, rule.lhs);
-	
 	
 	if(isEmpty(matches)) {
 		printError("No matches found for rule <name> in tilemap");
@@ -47,12 +51,27 @@ public ExecutionArtifact executeCall(
 	LudoscopeModule \module, 
 	createGraph(str graphname, CreateGraph g)
 ){
-	list[Coordinates] path = getPath(artifact.currentState,g.a,g.b);
+
+	return executeCall(artifact,\module,graphname,g);
+}
+
+public ExecutionArtifact executeCall(
+	ExecutionArtifact artifact, 
+	LudoscopeModule \module, 
+	str graphname,
+	createPath(str a, str b)
+){
+	println("here");
+    Graph[Coordinates] g = getGraph(artifact.currentState);
+
+	list[Coordinates] shortestPath = shortestPathInGraph(g, a, b, artifact.currentState);
 	
-    if(path == []) 
-    	printError("There is no viable path from <g.a> to <g.b> (graphname <graphname>)");
+    if(shortestPath == []) 
+    	printError("There is no viable path from <a> to <b> (graphname <graphname>)");
     else{
-    	artifact.graphs[graphname] = graph(g.a, g.b, path);
+    	artifact.graphs[graphname] = path(a, b, shortestPath);
     }
 	return artifact;
 }
+
+

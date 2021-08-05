@@ -1,38 +1,23 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-// Execution Data Structures
-// @brief        This file contains datastructures needed for execution an LL
-//							 project.
-// @contributor  Quinten Heijn - samuel.heijn@gmail.com - UvA
-// @date         01-05-2018
-//
-//////////////////////////////////////////////////////////////////////////////
-
 module execution::DataStructures
 
-//import analysis::sanrWrapper::PropertyHistory;
-//import sanr::PropertyValidation;
-//import execution::history::DataStructures;
 import parsing::DataStructures;
 import errors::Execution;
 
-//import sanr::DataStructures;
-
 alias ModuleHierarchy = list[set[LudoscopeModule]];
 alias Location =  tuple[int x, int y];
-alias GraphMap = map[str, Graph];
+alias PathMap = map[str, Path];
 
 data ExecutionArtifact =
 	executionArtifact(
 		TileMap output,
 		TileMap currentState,
-		GraphMap graphs,
+		PathMap graphs,
 		ExecutionHistory history,
 		list[str] errors)
 	| emptyExecutionArtifact();
 
-data Graph =
-	graph(
+data Path =
+	path(
 		str from,
 		str to,
 		list[Coordinates] path

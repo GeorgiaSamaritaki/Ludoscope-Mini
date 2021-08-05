@@ -65,7 +65,7 @@ pipeline {
 		}
 		
 		on exit constraint a: e == true;
-		non resolvable constraint b: path == true; 
+		resolvable constraint b: path == true; 
 		
 	}
 	

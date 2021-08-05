@@ -42,7 +42,7 @@ public set[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
 			}
 			if (match)
 			{
-				matches += {<widthOffset, heightOffset>};
+				matches += {<heightOffset, widthOffset>};
 			}
 		}
 	}

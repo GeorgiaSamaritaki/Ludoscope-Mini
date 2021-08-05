@@ -44,6 +44,7 @@ public ExecutionArtifact executeModule(
 	for (Call call<- recipe){
 		artifact = executeCall(artifact, \module , call);
 		
+		println("checking constraints");
 		artifact = checkNonExitConstraints(artifact, \module.constraints);
 		if(artifact.errors != []) return artifact;
 		

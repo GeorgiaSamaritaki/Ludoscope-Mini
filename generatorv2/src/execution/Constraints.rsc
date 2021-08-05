@@ -2,6 +2,7 @@ module execution::Constraints
 
 import IO;
 import List;
+import analysis::graphs::Graph;
 
 import utility::TileMap;
 import errors::Execution;
@@ -15,8 +16,10 @@ public ExecutionArtifact checkNonExitConstraints(
 	list[Constraint] constraints
 ){
 	for(c <-constraints){
-		if(c.typ != onexit())
-			checkConstraint(artifact, c, c.typ);
+		if(c.typ != onexit()){
+			println("Checking constraint <c.name>");
+			artifact = checkConstraint(artifact, c, c.typ);
+		}
 	}
 	
 	return artifact;
@@ -28,7 +31,7 @@ public ExecutionArtifact checkExitConstraints(
 ){
 	for(c <-constraints){
 		if(c.typ == onexit())
-			checkConstraint(artifact, c, c.typ);
+			artifact = checkConstraint(artifact, c, c.typ);
 	}
 	
 	return artifact;
@@ -82,6 +85,7 @@ private ExecutionArtifact checkConstraint(
 			if(lhs.val == path()){
 				if("path" in artifact.graphs){	
 					artifact = checkPath("path", artifact, false);
+				printTileMap(artifact.output);
 				}
 			}
 		}
@@ -91,24 +95,22 @@ private ExecutionArtifact checkConstraint(
 
 private ExecutionArtifact checkPath(str name, ExecutionArtifact artifact, bool resolvable){
 	HistoryEntry lastEntry = last(artifact.history);
-	Graph g = artifact.graphs[name];
-	
-	list[Coordinates] intersection = lastEntry.coordinates & g.path;
-	println("got here with intersection <intersection>");
-	println("entry <lastEntry.ruleName>");
-	println("path <g.path>");
-	println("previous changes <lastEntry.coordinates>");
+	Path p = artifact.graphs[name];
+	//println("check path <lastEntry.coordinates> path:<p.path>");
+	list[Coordinates] intersection = lastEntry.coordinates & p.path;
 	if(intersection != []){
-		//path is broken, try to see if there is another graph
-		list[Coordinates] newPath = getPath(artifact.output, g.from, g.to);
+		//path is broken, Recompute graph
+		Graph[Coordinates] newGraph = getGraph(artifact.output);
+		list[Coordinates] newPath = shortestPathInGraph(newGraph, p.from, p.to, artifact.output);
+		//println("new path <newPath>");
 		if(newPath == []){
 			printError("<lastEntry.ruleName> in module <lastEntry.moduleName> destoyed path:<name>");
 			
 			if(resolvable){
 				printSM("Trying to fix path...");
-				for(c <- intersection)
+				for(c <- intersection){
 					artifact.output = changeTile("f", c, artifact.output);
-	
+				}
 			}else{
 				printSM("Constraint non resolvable exiting.");
 				artifact.errors += ["exit"];

@@ -107,7 +107,7 @@ syntax Constraint
     
 syntax ConstraintType
 	= onexit: "on exit"
-	| resolable: "resolvable"
+	| resolvable: "resolvable"
 	| nonresolvable: "non resolvable" 
 	;
 
