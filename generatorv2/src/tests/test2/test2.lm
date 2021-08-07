@@ -1,28 +1,62 @@
 pipeline {
-	seed: 12;
-	alphabet { 
+	
+	alphabet {
 		floor f #010101; 
 		wall * #111111;
 		entrance  e #123456;
 		exit  x #000000;
 		pillar | #123123;
 		water ~ #123123;
-	}		
-	options {  
-		size: 6x6;
-		tiletype: f; 
 	}	
-	module A {
-		rules {
-			addEntrance: 
-			fsga 
-			a
-			-> 
-			a  
-			a  
-			;   
 	
-		}  
+	options {
+		seed: 12;
+		size: 4x4;
+		tiletype: f;
+	}
+	
+	module firstModule {
+		rules {
+			addWalls:
+			ffff,
+			ffff,
+			ffff,
+			ffff
+			->
+			****,
+			*ff*,
+			*ff*,
+			****;
+			addEntrance: 
+			*,
+			f 
+			->  
+			e,
+			f;
+			addExit: 
+			f* 
+			-> 
+			fx;
+			addWall:
+			f,f,f,f,f,f,f,f
+			-> 
+			*,*,*,*,*,*,*,*;
+			
+		}
 		
-	}  
+		recipe {
+			addWalls;
+			addEntrance;
+			addExit;
+			path = CreatePath(e,x);
+			addWall;
+		}
+		
+		on exit constraint a: e == true;
+		resolvable constraint b: path == true; 
+		
+	}
+	
+	
 }
+

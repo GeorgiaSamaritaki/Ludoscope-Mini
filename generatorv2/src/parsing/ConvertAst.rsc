@@ -7,12 +7,21 @@ import IO;
 import List;
 public LudoscopeProject transformPipeline(Pipeline project){
 
-	Alphabet alphabet = project.alphabet;
+	AlphabetMap alphabet = getAlphabetMap(project.alphabet.symbols);
 	Options options = project.options;
 	list[LudoscopeModule] modules = getModules(project.modules); 
 
 	return ludoscopeProject(alphabet, options, modules, []);
 }
+
+private AlphabetMap getAlphabetMap(list[SymbolInfo] symbols){
+	AlphabetMap alphMap = ();
+	
+	for(SymbolInfo si <- symbols)
+		alphMap[si.abbreviation] = alphabetEntry(si.name.val,si.color);
+		
+	return alphMap;
+} 
 
 private list[LudoscopeModule] getModules(list[Module] modules){
 	list[LudoscopeModule] ldModules = [];

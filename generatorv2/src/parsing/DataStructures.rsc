@@ -11,6 +11,7 @@ alias Tile = str;
 
 alias RuleMap	= map[str, LudoscopeRule];
 alias RecipeList = list[Call];
+alias AlphabetMap = map [str, AlphabetEntry];
 
 alias History = list[Transformation];
 alias Transformation = str;
@@ -24,7 +25,7 @@ data TransformationArtifact
 
 data LudoscopeProject
 	= ludoscopeProject(
-		Alphabet alphabet,
+		AlphabetMap alphabet,
 		Options options,
 		list[LudoscopeModule] modules, 
 		History history
@@ -38,6 +39,12 @@ data LudoscopeModule
 		list[Constraint] constraints)
 	| undefinedModule();
 
+data AlphabetEntry
+	= alphabetEntry(
+		str name,
+		str color
+	);
+	
 data LudoscopeRule
 	= ludoscopeRule(
 		TileMap lhs,
