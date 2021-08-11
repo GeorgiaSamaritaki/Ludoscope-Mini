@@ -29,6 +29,14 @@ private LudoscopeProject parseAndCheck(Tree tree){
 	return artifact;	
 } 
 
+private LudoscopeProject parseProject(loc projectFile){
+	AbstractPipeline project = implodePipeline(LD_parse(projectFile));
+	
+	LudoscopeProject artifact = transformPipeline(project);
+	//artifact = checkTransformationArtifact(artifact);
+	return artifact;	
+} 
+
 public void runProject(Tree tree, loc projectFile){
 	LudoscopeProject artifact = parseAndCheck(tree);
 	println("System Message: Parsed and checked");

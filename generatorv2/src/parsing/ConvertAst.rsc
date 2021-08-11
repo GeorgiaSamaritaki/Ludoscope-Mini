@@ -83,8 +83,8 @@ private TileMap patternToTilemap(list[str] pl){
 	return tileMap;
 }
 
-private bool areSameDimensions(list[list[str]] lista, list[list[str]] listb){
-	return all(int i <- [0 .. size(lista)], size(lista[i]) == size(listb[i])) && size(lista) == size(listb);	
+private bool areSameDimensions(list[list[str]] listA, list[list[str]] listB){
+	return all(int i <- [0 .. size(listA)], size(listA[i]) == size(listB[i])) && size(listA) == size(listB);	
 }
 
 
