@@ -28,7 +28,7 @@ import execution::DataStructures;
 
 alias Model = 
 	tuple[
-		View view,
+		ViewType view,
 		ProjectViewInfo projectViewInfo,
 		ExecutionViewInfo executionViewInfo
 		//,BugReportViewInfo bugReportViewInfo
@@ -69,12 +69,10 @@ alias ExecutionViewInfo
 private loc projectsFolder = |project://generatorv2/src/tests/test1|;
 
 Model init() {
-	println("Init called");
 	Mode mode = grammar2mode("Project pipeline", #Pipeline);
 	list[str] projects = listEntries(projectsFolder);
     str selectedFile = projects[0]; 
 	str src = readFile(projectsFolder + selectedFile);
-	
 	ProjectViewInfo projectViewInfo = <
 			src, 
 			src, 
@@ -95,13 +93,12 @@ Model init() {
 			executionViewInfo
 			//,			bugReportViewInfo
 		>;
-
 	newModel = tryAndParse(newModel);
 	println("Parsed!");
 	return newModel;
 }
 
-data View
+data ViewType
 	= projectView()
 	| executionView()
 	| bugReportView();
@@ -111,7 +108,7 @@ data Msg
   | selectedProject(str folder)
   | selectedFile(str file)
   | saveChanges()
-  | changeView(View newView)
+  | changeView(ViewType newView)
   | setStep(int newStep)
   | setItterations(int itterations)
   | startNewAnalysis()
@@ -128,6 +125,7 @@ private list[str] mySplit(str sep, str s) {
 
 private str updateSrc(str src, int fromLine, int fromCol, int toLine, int toCol, str text, str removed) {
   // NOTE: Added this for microsoft line breaks.
+  println("updateSrc Called");
   str src = replaceAll(src, "\r\n", "\n");
   list[str] lines = mySplit("\n", src);
 
@@ -148,8 +146,9 @@ private str updateSrc(str src, int fromLine, int fromCol, int toLine, int toCol,
 }
 
 Model update(Msg msg, Model model) {
+ println("update Called msg <msg>");
   switch (msg) {
-  	case changeView(View newView):
+  	case changeView(ViewType newView):
   	{
   		model.view = newView;
   	}
@@ -217,35 +216,31 @@ Model update(Msg msg, Model model) {
 }
 
 Model tryAndParse(Model model){
-	println("try and parse called");
+	println("tryAndParse Called");
   	str file =  model.projectViewInfo.selectedFile;
-	loc projectFile = projectsFolder + model.projectViewInfo.selectedProject + file;
-	
-	model.projectViewInfo.parsedProject = parseProject(projectFile);
+	loc projectFile = projectsFolder + file;
+	model.projectViewInfo.parsedProject = parseProjectFromLoc(projectFile);
 
 	return model;
 }
 
-Model generateSoundLevel(Model model)
-{
-	ExecutionArtifact artifact = model.executionViewInfo.executionArtifact;
-		
-	// TODO: 100 executions can take a long time. Measure time.
-	for (int i <- [0 .. 100])
-	{
-		PropertyStates finalPropertyStates = last(artifact.propertyReport.history).propertyStates;
-		
-		if (false in finalPropertyStates)
-		{
-			model.executionViewInfo.executionArtifact 
-				= executeProject(model.projectViewInfo.parsedProject.project);
-		}
-		else
-		{
-			return model;
-		}
-	}
-	println("Couldn\'t generate sound level");
-	
-	return model;
-}
+//Model generateSoundLevel(Model model)
+//{
+//	ExecutionArtifact artifact = model.executionViewInfo.executionArtifact;
+//		
+//	// TODO: 100 executions can take a long time. Measure time.
+//	for (int i <- [0 .. 100]){
+//		PropertyStates finalPropertyStates = last(artifact.propertyReport.history).propertyStates;
+//		
+//		if (false in finalPropertyStates)
+//		{
+//			model.executionViewInfo.executionArtifact 
+//				= executeProject(model.projectViewInfo.parsedProject.project);
+//		}else{
+//			return model;
+//		}
+//	}
+//	println("Couldn\'t generate sound level");
+//	
+//	return model;
+//}

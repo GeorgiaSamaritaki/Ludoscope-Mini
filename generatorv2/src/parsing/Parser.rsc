@@ -29,7 +29,7 @@ private LudoscopeProject parseAndCheck(Tree tree){
 	return artifact;	
 } 
 
-private LudoscopeProject parseProject(loc projectFile){
+public LudoscopeProject parseProjectFromLoc(loc projectFile){
 	AbstractPipeline project = implodePipeline(LD_parse(projectFile));
 	
 	LudoscopeProject artifact = transformPipeline(project);
