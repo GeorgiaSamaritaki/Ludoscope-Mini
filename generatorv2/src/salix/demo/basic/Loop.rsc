@@ -27,8 +27,8 @@ SalixApp[Model] loopApp(str id = "root") = makeApp(id, init, view, update);
 App[Model] loopWebApp() 
   = webApp(
       loopApp(), 
-      |project://salix/src/salix/demo/basic/index.html|, 
-      |project://salix/src|
+      |project://generatorv2/src/salix/demo/basic/index.html|, 
+      |project://generatorv2/src|
     );
 
 data Msg

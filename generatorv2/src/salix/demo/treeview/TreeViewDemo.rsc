@@ -11,8 +11,8 @@ SalixApp[Model] treeViewApp(str id = "treeViewDemo") = makeApp(id, init, view, u
 App[Model] treeViewWebApp()
   = webApp(
       treeViewApp(),
-      |project://salix/src/salix/demo/treeview/index.html|, 
-      |project://salix/src| 
+      |project://generatorv2/src/salix/demo/treeview/index.html|, 
+      |project://generatorv2/src| 
     );
 
 Model init() = "";

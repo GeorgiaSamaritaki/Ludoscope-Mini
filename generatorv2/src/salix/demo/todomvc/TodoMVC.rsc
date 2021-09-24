@@ -36,8 +36,8 @@ SalixApp[Model] todoMVCApp(str id = "todoMVC") = makeApp(id, emptyModel, view, u
 App[Model] todoMVC() 
   = webApp(
       todoMVCApp(), 
-      |project://salix/src/salix/demo/todomvc/todomvc.html|, 
-      |project://salix/src|
+      |project://generatorv2/src/salix/demo/todomvc/todomvc.html|, 
+      |project://generatorv2/src|
     );
   
 Model emptyModel() = <[], "", 0, "All">;

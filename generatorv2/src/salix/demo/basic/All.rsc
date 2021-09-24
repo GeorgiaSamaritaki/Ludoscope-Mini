@@ -27,6 +27,6 @@ App[value] createBasicDemoWebApp()
   = webApp(
       "allBasicDemos", 
       createBasicDemoApps(), 
-      |project://salix/src/salix/demo/basic/all_demos.html|, 
-      |project://salix/src|
+      |project://generatorv2/src/salix/demo/basic/index.html|, 
+      |project://generatorv2/src|
     );

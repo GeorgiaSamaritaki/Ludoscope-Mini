@@ -1,4 +1,4 @@
-module visual::IDE::View
+module visual::IDE::View1
 
 import visual::IDE::IDE;
 
@@ -27,17 +27,17 @@ import execution::DataStructures;
 
 public void view(Model model) {
   div(() {
-  	h2("okay");
- // 	//viewHeader(model);
- //  // viewProject(model);
- //   //switch (model.view)
- //   //{
- //   //	case projectView(): viewProject(model);
- //   //	case executionView(): viewExecution(model);
- //   //	case bugReportView(): viewBugReport(model);
- //   //}
-//
-	//	//viewFooter(model);
+  	viewHeader(model);
+    viewProject(model);
+    switch (model.view)
+    {
+    	case projectView(): viewProject(model);
+    	case executionView(): viewExecution(model);
+    	//case bugReportView(): viewBugReport(model);
+    	default: println("view went to default");
+    }
+
+	viewFooter(model);
   });
 }
 
@@ -145,144 +145,144 @@ public void view(Model model) {
 //	});
 //}
 //
-//void viewExecution(model)
-//{
-//	if (model.executionViewInfo.executionArtifact == emptyExecutionArtifact())
-//	{
-//		h3("The project stil contains parsing errors..");
-//	} 
-//	else
-//	{
-//		ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
-//		
-//		div(class("container"), () {
-//			div(class("row"), () {
-//				/* History */
-//				viewHistory(model);
-//				/* Pipeline, maps, rule */
-//				div(class("col-md-6"), () {
-//					Step step = history[model.executionViewInfo.currentStep];
-//				
-//					LudoscopeProject project = model.projectViewInfo.parsedProject.project;
-//				
-//					LudoscopeModule \module = [\module | 
-//						LudoscopeModule \module <- project.modules,
-//						\module.name == step.moduleName][0];
-//	
-//					Alphabet alphabet = project.alphabets[\module.alphabetName];
-//					
-//					/* Pipeline */
-//					div(class("row"), () {
-//						//viewPipeline(model);
-//					});
-//					
-//					/* Maps */
-//					TileMap tileMap = step.tileMap;	
-//					int svgWidth = 500;
-//					int svgHeight 
-//						= calculateSvgHeight(svgWidth, size(tileMap[0]), size(tileMap));
-//					
-//					div(class("row svgWrapper text-center"), style(<"height", "<svgHeight>px;">), () {				
-//						SymbolMap symbolMap = TileMapToSymbolMap(tileMap, alphabet);
-//						
-//						drawSymbolMap(symbolMap, svgWidth);
-//					});
-//					hr();
-//					/* Rule */
-//					div(class("row ruleRow"), () {
-//						Rule rule = \module.rules[step.ruleName];
-//						list[RightHandScore] madScores 
-//							= model.projectViewInfo.madScores[\module.name][step.ruleName];
-//						
-//						drawRule(alphabet, rule, madScores);
-//					});
-//				});
-//				/* Properties */
-//				PropertyReport propertyReport 
-//					= model.executionViewInfo.executionArtifact.propertyReport;
-//				list[Property] properties = propertyReport.specification.properties;
-//				PropertyStates propertyStates 
-//					= propertyReport.history[1 + model.executionViewInfo.currentStep].propertyStates;
-//				
-//				div(class("col-md-3 propertyList"), () {
-//					h3("Properties");
-//					table(class("table table-condensed"), () {
-//						tbody(() {
-//							for(int i <- [0 .. size(properties)])
-//							{
-//								Property property = properties[i];
-//								str rowClass;
-//								if (propertyStates[i])
-//								{
-//									rowClass = "success";
-//								}
-//								else
-//								{
-//									rowClass = "danger";
-//								}
-//								tr(class(rowClass), () {
-//									th(scope("row"), () {
-//										text(propertyToText(property));
-//									});
-//								});
-//							}
-//						});
-//					});
-//				});
-//			});
-//		});
-//	}
-//}
-//
-//void viewHistory(Model model)
-//{
-//	ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
-//	div(class("col-md-3 executionHistory"), () {
-//		table(class("table table-hover table-condensed"), () {
-//			thead(() {
-//				th(scope("col"), class("text-center"), () {
-//					text("#");
-//				});
-//				th(scope("col"), class("text-center"), () {
-//					text("Module");
-//				});
-//				// TODO: add instruction back.
-//				//th(scope("col"), class("text-center"), () {
-//				//	text("Instruction");
-//				//});
-//				th(scope("col"), class("text-center"), () {
-//					text("Rule");
-//				});
-//			});
-//			tbody(() {
-//				for(int i <- [0 .. size(history)])
-//				{
-//					Step step = history[i];
-//					str rowClass = "";
-//					if (i == model.executionViewInfo.currentStep)
-//					{
-//						rowClass = "active";
-//					}
-//					tr(class(rowClass), onClick(setStep(i)), () {
-//						th(scope("row"), () {
-//							text("<i>");
-//						});
-//						th(scope("row"), () {
-//							text(step.moduleName);
-//						});
-//						// TODO: add instruction back.
-//						//th(scope("row"), () {
-//						//	text(step.instruction);
-//						//});
-//						th(scope("row"), () {
-//							text(step.ruleName);
-//						});
-//					});
-//				}
-//			});
-//		});
-//	});
-//}
+void viewExecution(model)
+{
+	if (model.executionViewInfo.executionArtifact == emptyExecutionArtifact())
+	{
+		h3("The project stil contains parsing errors..");
+	} 
+	else
+	{
+		ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
+		
+		div(class("container"), () {
+			div(class("row"), () {
+				/* History */
+				viewHistory(model);
+				/* Pipeline, maps, rule */
+				div(class("col-md-6"), () {
+					Step step = history[model.executionViewInfo.currentStep];
+				
+					LudoscopeProject project = model.projectViewInfo.parsedProject.project;
+				
+					LudoscopeModule \module = [\module | 
+						LudoscopeModule \module <- project.modules,
+						\module.name == step.moduleName][0];
+	
+					AlphabetMap alphabet = project.alphabet[\module.alphabetName];
+					
+					/* Pipeline */
+					div(class("row"), () {
+						//viewPipeline(model);
+					});
+					
+					/* Maps */
+					TileMap tileMap = step.tileMap;	
+					int svgWidth = 500;
+					int svgHeight 
+						= calculateSvgHeight(svgWidth, size(tileMap[0]), size(tileMap));
+					
+					div(class("row svgWrapper text-center"), style(<"height", "<svgHeight>px;">), () {				
+						SymbolMap symbolMap = TileMapToSymbolMap(tileMap, alphabet);
+						
+						drawSymbolMap(symbolMap, svgWidth);
+					});
+					hr();
+					/* Rule */
+					div(class("row ruleRow"), () {
+						Rule rule = \module.rules[step.ruleName];
+						list[RightHandScore] madScores 
+							= model.projectViewInfo.madScores[\module.name][step.ruleName];
+						
+						drawRule(alphabet, rule, madScores);
+					});
+				});
+				/* Properties */
+				PropertyReport propertyReport 
+					= model.executionViewInfo.executionArtifact.propertyReport;
+				list[Property] properties = propertyReport.specification.properties;
+				PropertyStates propertyStates 
+					= propertyReport.history[1 + model.executionViewInfo.currentStep].propertyStates;
+				
+				div(class("col-md-3 propertyList"), () {
+					h3("Properties");
+					table(class("table table-condensed"), () {
+						tbody(() {
+							for(int i <- [0 .. size(properties)])
+							{
+								Property property = properties[i];
+								str rowClass;
+								if (propertyStates[i])
+								{
+									rowClass = "success";
+								}
+								else
+								{
+									rowClass = "danger";
+								}
+								tr(class(rowClass), () {
+									th(scope("row"), () {
+										text(propertyToText(property));
+									});
+								});
+							}
+						});
+					});
+				});
+			});
+		});
+	}
+}
+
+void viewHistory(Model model)
+{
+	ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
+	div(class("col-md-3 executionHistory"), () {
+		table(class("table table-hover table-condensed"), () {
+			thead(() {
+				th(scope("col"), class("text-center"), () {
+					text("#");
+				});
+				th(scope("col"), class("text-center"), () {
+					text("Module");
+				});
+				// TODO: add instruction back.
+				//th(scope("col"), class("text-center"), () {
+				//	text("Instruction");
+				//});
+				th(scope("col"), class("text-center"), () {
+					text("Rule");
+				});
+			});
+			tbody(() {
+				for(int i <- [0 .. size(history)])
+				{
+					Step step = history[i];
+					str rowClass = "";
+					if (i == model.executionViewInfo.currentStep)
+					{
+						rowClass = "active";
+					}
+					tr(class(rowClass), onClick(setStep(i)), () {
+						th(scope("row"), () {
+							text("<i>");
+						});
+						th(scope("row"), () {
+							text(step.moduleName);
+						});
+						// TODO: add instruction back.
+						//th(scope("row"), () {
+						//	text(step.instruction);
+						//});
+						th(scope("row"), () {
+							text(step.ruleName);
+						});
+					});
+				}
+			});
+		});
+	});
+}
 
 void viewProject(Model model)
 {
@@ -295,29 +295,16 @@ void viewProject(Model model)
 		    button(class("saveButton"), onClick(saveChanges()), "Save changes");
 		  });
 			div(class("col-md-6"), () {
-				if (model.projectViewInfo.parsedProject == emptyArtifact())
-				{
+				if (model.projectViewInfo.parsedProject == undefinedProject())
 					h3("No project to parse..");
-				}
 				else if (size(model.projectViewInfo.parsedProject.errors) > 0)
-				{
 					for (str error <- model.projectViewInfo.parsedProject.errors)
-					{
 						h4(error);
-					}
-				}
-				//else if (size(model.projectViewInfo.prepairedProject.errors) > 0)
-				//{
-				//	for (ExecutionError error <- model.projectViewInfo.prepairedProject.errors)
-				//	{
-				//		h4(errorToString(error));
-				//	}
-				//}
+				else if (size(model.projectViewInfo.prepairedProject.errors) > 0)
+					for (ExecutionError error <- model.projectViewInfo.prepairedProject.errors)
+						h4(errorToString(error));
 				else
-				{
 					viewPipeline(model);
-
-				}
 			});
     });
   });
@@ -351,62 +338,62 @@ void viewPipeline(Model model)
 	//});
 }
 
-void viewGrammar(Model model)
-{
-	//str moduleName = model.projectViewInfo.selectedFile[..-4];
-	//LudoscopeModule \module = [\module | 
-	//	LudoscopeModule \module <- model.projectViewInfo.parsedProject.project.modules,
-	//	\module.name == moduleName][0];
-	//
-	//Alphabet alphabet = 
-	//	model.projectViewInfo.parsedProject.project.alphabets[\module.alphabetName];
-	//div(class("scrollBox container col-md-12"), () {
-	//
-	//	if (\module.recipe == [executeGrammar()])
-	//	{
-	//		div(class("row"), () {
-	//	  	h3(\module.name);
-	//			h4("Executed as grammar");
-	//		});
-	//		hr();
-	//		for (str ruleName <- \module.rules)
-	//		{
-	//			Rule rule = \module.rules[ruleName];
-	//    	div(class("row"), () {
-	//	  		h4(ruleName);
-	//	  	});
-	//			drawRule(alphabet, rule, model.projectViewInfo.madScores[\module.name][ruleName]);
-	//			hr();
-	//		}
-	//	}
-	//	else
-	//	{
-	//		div(class("row"), () {
-	//	  	h3(\module.name);
-	//			h5("Executed as recipe");
-	//			hr();
-	//		});
-	//		for (Instruction instruction <- \module.recipe)
-	//		{
-	//			int execution;
-	//			if (/itterateRule(A) := instruction)
-	//			{
-	//				execution = 1;
-	//			}
-	//			else
-	//			{
-	//				execution = instruction.itterations;
-	//			}
-	//			str ruleName = instruction.ruleName;
-	//			Rule rule = \module.rules[ruleName];
-	//    	div(class("row"), () {
-	//	  		h4("<ruleName> (<execution>x)");
-	//	  	});
-	//			drawRule(alphabet, rule, model.projectViewInfo.madScores[\module.name][ruleName]);
-	//			hr();
-	//		}
-	//	}
-	//});
+void viewGrammar(Model model){
+	println("view Grammar");
+	str moduleName = model.projectViewInfo.selectedFile[..-4];
+	LudoscopeModule \module = [\module | 
+		LudoscopeModule \module <- model.projectViewInfo.parsedProject.project.modules,
+		\module.name == moduleName][0];
+	
+	Alphabet alphabet = 
+		model.projectViewInfo.parsedProject.project.alphabets[\module.alphabetName];
+	div(class("scrollBox container col-md-12"), () {
+	
+		if (\module.recipe == [executeGrammar()])
+		{
+			div(class("row"), () {
+		  	h3(\module.name);
+				h4("Executed as grammar");
+			});
+			hr();
+			for (str ruleName <- \module.rules)
+			{
+				Rule rule = \module.rules[ruleName];
+	    	div(class("row"), () {
+		  		h4(ruleName);
+		  	});
+				drawRule(alphabet, rule, model.projectViewInfo.madScores[\module.name][ruleName]);
+				hr();
+			}
+		}
+		else
+		{
+			div(class("row"), () {
+		  	h3(\module.name);
+				h5("Executed as recipe");
+				hr();
+			});
+			for (Instruction instruction <- \module.recipe)
+			{
+				int execution;
+				if (/itterateRule(A) := instruction)
+				{
+					execution = 1;
+				}
+				else
+				{
+					execution = instruction.itterations;
+				}
+				str ruleName = instruction.ruleName;
+				Rule rule = \module.rules[ruleName];
+	    	div(class("row"), () {
+		  		h4("<ruleName> (<execution>x)");
+		  	});
+				drawRule(alphabet, rule, model.projectViewInfo.madScores[\module.name][ruleName]);
+				hr();
+			}
+		}
+	});
 }
 
 void drawRule(Alphabet alphabet, Rule rule, list[RightHandScore] madScores)
@@ -482,6 +469,7 @@ SymbolInfo getSymbol(Alphabet alphabet, str symbolName)
 
 void viewOptionsRule(Reflections reflections, int madScore)
 {
+	println("view options rule");
 	div(class("row"), () {
 		if (reflections.mirrorHorizontal)
 		{

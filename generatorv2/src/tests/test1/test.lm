@@ -1,12 +1,12 @@
 pipeline {
 	
 	alphabet {
-		floor f #010101; 
-		wall * #111111;
-		entrance  e #123456;
-		exit  x #000000;
-		pillar | #123123;
-		water ~ #123123;
+		floor f #907558; 
+		wall * #A9A9A9;
+		entrance  e #00FF00;
+		exit  x #FF0000;
+		pillar | #964B00;
+		water ~ #0000FF;
 	}	
 	
 	options {
