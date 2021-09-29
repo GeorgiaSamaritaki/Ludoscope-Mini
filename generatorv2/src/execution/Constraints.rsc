@@ -19,6 +19,7 @@ public ExecutionArtifact checkNonExitConstraints(
 		if(c.typ != onexit()){
 			println("Checking constraint <c.name>");
 			artifact = checkConstraint(artifact, c, c.typ);
+			println("Finished checking constraint <c.name>");
 		}
 	}
 	
@@ -107,10 +108,18 @@ private ExecutionArtifact checkPath(str name, ExecutionArtifact artifact, bool r
 			printError("<lastEntry.ruleName> in module <lastEntry.moduleName> destoyed path:<name>");
 			
 			if(resolvable){
+				HistoryEntry newEntry = entry(
+											artifact.output,
+											[],
+											intersection,
+											"Repair",
+											"Path");
 				printSM("Trying to fix path...");
 				for(c <- intersection){
 					artifact.output = changeTile("f", c, artifact.output);
 				}
+				newEntry.after = artifact.output;
+				artifact.history += [newEntry];
 			}else{
 				printSM("Constraint non resolvable exiting.");
 				artifact.errors += ["exit"];

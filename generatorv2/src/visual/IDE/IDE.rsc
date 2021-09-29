@@ -65,33 +65,10 @@ alias ExecutionViewInfo
 public void viewHeader(Model model) {
 	header(() {
 		nav(class("navbar navbar-inverse navbar-static-top"), () {
-			a(class("navbar-brand"), href("#"), () {
-				text("Ludoscope Lite");
+			a(class("navbar-brand"), onClick(goHome()), href("#"), () {
+				text("AMG");
 			});
 			ul(class("nav navbar-nav"), () {
-				li(class("dropdown"), () {
-					a(class("dropbtn"), href("#"), () {
-						text("Project");
-						span(class("caret"), () {});
-					});
-					ul(class("dropdown-content"), () {
-						for (str project <- model.projectViewInfo.projectFiles)
-						{
-							if (project == model.projectViewInfo.selectedFile)
-							{
-							  li(class("active"), () {
-									a(href("#"), onClick(selectedProject(project)), project);
-								});
-							}
-							else
-							{
-							  li(() {
-									a(href("#"), onClick(selectedProject(project)), project);
-								});
-							}
-						}
-					});
-				});
 				li(class("dropdown"), () {
 					a(class("dropbtn"), href("#"), () {
 						text("File");
@@ -115,27 +92,15 @@ public void viewHeader(Model model) {
 						}
 					});
 				});
-				li(class("dropdown"), () {
-					a(class("dropbtn"), href("#"), () {
-						text("Execute");
-						span(class("caret"), () {});
-					});
-					ul(class("dropdown-content"), () {
-					  li(() {
-							a(href("#"), onClick(changeView(executionView())), "Execute project");
-						});
-						li(() {
-							a(href("#"), onClick(generateSoundLevel()), "Generate sound level");
-						});
-						li(() {
-							a(href("#"), onClick(changeView(bugReportView())), "SaNR analysis");
-						});
-					});
+			  	li(() {
+					a(href("#"), onClick(executeProject()), "Execute");
 				});
 			});
 		});
 	});
 }
+
+
 void drawSymbolMap(SymbolMap symbolMap, int svgWidth)
 {
 	int tileWidth = svgWidth / size(symbolMap[0]);
@@ -144,7 +109,7 @@ void drawSymbolMap(SymbolMap symbolMap, int svgWidth)
 	if(tileHeight < tileWidth) tileWidth = tileHeight;
 	int svgHeight = tileWidth * size(symbolMap);
 	
-	println("svgw <svgWidth> svgHeight <svgHeight> tile width <tileWidth>");
+	//println("svgw <svgWidth> svgHeight <svgHeight> tile width <tileWidth>");
 	
 	svg(height("<svgHeight>px"), width("<svgWidth>px"), () {		
 		for (int row <- [0 .. size(symbolMap)]){
@@ -181,7 +146,7 @@ void drawRule(AlphabetMap alphabet, LudoscopeRule rule){
 	int svgHeight 
 		= calculateSvgHeight(svgWidth, size(rule.lhs));
 	
-	println("For rule <size(rule.lhs[0])>/<size(rule.rhs)> svgHeight <svgHeight>");
+	//println("For rule <size(rule.lhs[0])>/<size(rule.rhs)> svgHeight <svgHeight>");
 	
 	div(class("row"), style(<"height", "<svgHeight>px;">),() {
   		div(class("col-md-4 svgWrapper text-center"),  () {
@@ -261,7 +226,6 @@ void viewProject(Model model)
 
 			codeMirrorWithMode("cm", model.projectViewInfo.mode, onChange(cmChange), style(("height": "50%")),
 			  lineNumbers(true), \value(model.projectViewInfo.initialSrc), lineWrapping(true), class("cm-s-3024-night"));
-			
 		});
 		div(class("col-md-6"), () {
 			if (model.projectViewInfo.parsedProject == undefinedProject())
@@ -278,11 +242,142 @@ void viewProject(Model model)
   });
 }
 
+void viewHistory(Model model)
+{
+	ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
+	div(class("col-md-3 executionHistory"), () {
+		table(class("table table-hover table-condensed"), () {
+			thead(() {
+				th(scope("col"), class("text-center"), () {
+					text("#");
+				});
+				th(scope("col"), class("text-center"), () {
+					text("Module");
+				});
+				// TODO: add instruction back.
+				//th(scope("col"), class("text-center"), () {
+				//	text("Instruction");
+				//});
+				th(scope("col"), class("text-center"), () {
+					text("Rule");
+				});
+			});
+			tbody(() {
+				for(int i <- [0 .. size(history)])
+				{
+					HistoryEntry step = history[i];
+					str rowClass = "";
+					if (i == model.executionViewInfo.currentStep)
+					{
+						rowClass = "active";
+					}
+					tr(class(rowClass), onClick(setStep(i)), () {
+						th(scope("row"), () {
+							text("<i>");
+						});
+						th(scope("row"), () {
+							text(step.moduleName);
+						});
+						// TODO: add instruction back.
+						//th(scope("row"), () {
+						//	text(step.instruction);
+						//});
+						th(scope("row"), () {
+							text(step.ruleName);
+						});
+					});
+				}
+			});
+		});
+	});
+}
 
+void viewExecution(model){
+println("view ex");
+	if (model.executionViewInfo.executionArtifact == emptyExecutionArtifact()){
+		h3("The project stil contains parsing errors..");
+	}else{
+		ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
+		
+		div(class("container"), () {
+			div(class("row"), () {
+				/* History */
+				viewHistory(model);
+				/* Pipeline, maps, rule */
+				div(class("col-md-6"), () {
+					HistoryEntry step = history[model.executionViewInfo.currentStep];
+				
+					LudoscopeProject project = model.projectViewInfo.parsedProject;
+	
+					AlphabetMap alphabet = project.alphabet;
+					
+					/* Maps */
+					TileMap tileMap = step.before;	
+					int svgWidth = 200;
+					int svgHeight 
+						= calculateSvgHeight(svgWidth, size(tileMap));
+					
+					div(class("row svgWrapper text-center"), style(<"height", "<svgHeight>px;">), () {				
+					
+				  		div(class("col-md-4 svgWrapper text-center"),  () {
+					  		SymbolMap symbolMap = TileMapToSymbolMap(step.before, alphabet);
+					  		drawSymbolMap(symbolMap, svgWidth);
+				  		});
+					  	div(class("col-md-2 arrow"), () {
+					  		text("➞");
+					  	});
+						div(class("col-md-4 svgWrapper text-center"), style(<"height", "<svgHeight>px;">), () {
+							SymbolMap symbolMap = TileMapToSymbolMap(step.after, alphabet);
+							drawSymbolMap(symbolMap, svgWidth);
+						});
+					});
+					hr();
+					
+					/* Rule */
+					//div(class("row ruleRow"), () {
+					//	Rule rule = \module.rules[step.ruleName];
+					//	drawRule(alphabet, rule);
+					//});
+				});
+				/* Properties */
+				//PropertyReport propertyReport 
+				//	= model.executionViewInfo.executionArtifact.propertyReport;
+				//list[Property] properties = propertyReport.specification.properties;
+				//PropertyStates propertyStates 
+				//	= propertyReport.history[1 + model.executionViewInfo.currentStep].propertyStates;
+				//
+				//div(class("col-md-3 propertyList"), () {
+		//			h3("Properties");
+		//			table(class("table table-condensed"), () {
+		//				tbody(() {
+		//					for(int i <- [0 .. size(properties)])
+		//					{
+		//						Property property = properties[i];
+		//						str rowClass;
+		//						if (propertyStates[i])
+		//						{
+		//							rowClass = "success";
+		//						}
+		//						else
+		//						{
+		//							rowClass = "danger";
+		//						}
+		//						tr(class(rowClass), () {
+		//							th(scope("row"), () {
+		//								text(propertyToText(property));
+		//							});
+		//						});
+		//					}
+		//				});
+		//			});
+				});
+			//});
+		});
+	}
+}
 public void view(Model model) {
   div(() {
   	viewHeader(model);
-    viewProject(model);
     switch (model.view)
     {
     	case projectView(): viewProject(model);
@@ -342,14 +437,16 @@ data View
 	| bugReportView();
 
 data Msg
-  = cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed)
+  = goHome() 
+  | cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed)
   | selectedProject(str folder)
   | selectedFile(str file)
   | saveChanges()
   | changeView(View newView)
+  | executeProject()
   | setStep(int newStep)
-  | setItterations(int itterations)
-  | startNewAnalysis()
+   //| setItterations(int itterations)
+  //| startNewAnalysis()
   //| setBugType(BugType bugType)
   | inspectExecution(ExecutionArtifact executionArtifact, int currentStep)
   | generateSoundLevel();
@@ -386,69 +483,57 @@ private str updateSrc(str src, int fromLine, int fromCol, int toLine, int toCol,
 Model update(Msg msg, Model model) {
  println("update Called msg <msg>");
   switch (msg) {
-  	case changeView(View newView):
-  	{
+  	case goHome(): {
+  		model.view = projectView();
+  	}
+  	case changeView(View newView): {
   		model.view = newView;
   	}
-    case cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed):
-    {
-      model.projectViewInfo.updatedSrc = updateSrc(model.projectViewInfo.updatedSrc, fromLine, fromCol, toLine, toCol, text, removed);
-	  }
-    case selectedProject(str folder):
-    {
-  //  	model.projectViewInfo.selectedProject = folder;
-  //  	model.projectViewInfo.projectFiles = listEntries(projectsFolder + folder);
-  //  	model = selectFile(model, model.projectViewInfo.projectFiles[0]);
-  //  	
-		//model = tryAndParse(model);
-		//model.bugReportViewInfo.bugReport = emptyReport();
-		//model.executionViewInfo.currentStep = 0;
-			;
-    }
+  	case executeProject():{
+  		model.executionViewInfo.executionArtifact = executeProject(model.projectViewInfo.parsedProject);
+  		model.view = executionView();
+  		println("Executed project");
+  	}
+    case cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed):{
+      	model.projectViewInfo.updatedSrc = updateSrc(model.projectViewInfo.updatedSrc, fromLine, fromCol, toLine, toCol, text, removed);
+    	println("updating source \n <model.projectViewInfo.updatedSrc>");
+	}
     case selectedFile(str file):
     {
     	model = selectFile(model, file);
     	model.view = projectView();
     }
-    case saveChanges():
-    {
-    	//loc file = projectsFolder 
-    	//	+ model.projectViewInfo.selectedProject 
-    	//	+ model.projectViewInfo.selectedFile;
-    	//writeFile(file, model.projectViewInfo.updatedSrc);
-    	//model = tryAndParse(model);
-    	;
+    case saveChanges():{
+    	loc file = projectsFolder + model.projectViewInfo.selectedFile;
+    	writeFile(file, model.projectViewInfo.updatedSrc);
+    	model = tryAndParse(model);
+    	
     }
     case setStep(int newStep):
     {
     	model.executionViewInfo.currentStep = newStep;
     }
-    case setItterations(int itterations):
-    {
-    	model.bugReportViewInfo.itterations = itterations;
-    	;
-    }
-    case startNewAnalysis():
-    {
-    	model.bugReportViewInfo.bugReport 
-    		= analyseProject(model.projectViewInfo.parsedProject.project, 
-    			model.bugReportViewInfo.itterations);
-    }
+    //case startNewAnalysis():
+    //{
+    //	model.bugReportViewInfo.bugReport 
+    //		= analyseProject(model.projectViewInfo.parsedProject.project, 
+    //			model.bugReportViewInfo.itterations);
+    //}
     //case setBugType(BugType bugType):
     //{
     //	model.bugReportViewInfo.selectedBugType = bugType;
     //}
-    case inspectExecution(ExecutionArtifact executionArtifact, int currentStep):
-    {
-    	model.view = executionView();
-    	model.executionViewInfo.executionArtifact = executionArtifact;
-    	model.executionViewInfo.currentStep = currentStep;
-    }
-    case generateSoundLevel():
-    {
-    	model = generateSoundLevel(model);
-    	model.view = executionView();
-    }
+    //case inspectExecution(ExecutionArtifact executionArtifact, int currentStep):
+    //{
+    //	model.view = executionView();
+    //	model.executionViewInfo.executionArtifact = executionArtifact;
+    //	model.executionViewInfo.currentStep = currentStep;
+    //}
+    //case generateSoundLevel():
+    //{
+    //	model = generateSoundLevel(model);
+    //	model.view = executionView();
+    //}
   }
   return model;
 }
@@ -462,23 +547,11 @@ Model tryAndParse(Model model){
 	return model;
 }
 
-//Model generateSoundLevel(Model model)
-//{
-//	ExecutionArtifact artifact = model.executionViewInfo.executionArtifact;
-//		
-//	// TODO: 100 executions can take a long time. Measure time.
-//	for (int i <- [0 .. 100]){
-//		PropertyStates finalPropertyStates = last(artifact.propertyReport.history).propertyStates;
-//		
-//		if (false in finalPropertyStates)
-//		{
-//			model.executionViewInfo.executionArtifact 
-//				= executeProject(model.projectViewInfo.parsedProject.project);
-//		}else{
-//			return model;
-//		}
-//	}
-//	println("Couldn\'t generate sound level");
-//	
-//	return model;
-//}
+
+Model selectFile(Model model, str file){	
+	model.projectViewInfo.selectedFile = file;
+	model.projectViewInfo.initialSrc = readFile(projectsFolder + file);
+	model = tryAndParse(model);
+	
+	return model;
+}

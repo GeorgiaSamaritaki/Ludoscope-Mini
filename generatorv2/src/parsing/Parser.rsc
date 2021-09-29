@@ -27,7 +27,19 @@ private LudoscopeProject parseAndCheck(Tree tree){
 	LudoscopeProject artifact = transformPipeline(project);
 	//artifact = checkTransformationArtifact(artifact);
 	return artifact;	
-} 
+}
+
+	
+public ExecutionArtifact executeProject(LudoscopeProject artifact){
+	arbSeed(artifact.options.randomseed);
+	ExecutionArtifact newArtifact = executeProject(artifact);
+	
+	if(newArtifact.errors != []){
+		println("There were errors found while executing the project");
+	}
+	println("Done Executing");
+	return newArtifact;
+}  
 
 public LudoscopeProject parseProjectFromLoc(loc projectFile){
 	AbstractPipeline project = implodePipeline(LD_parse(projectFile));
