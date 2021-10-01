@@ -1,32 +1,37 @@
 pipeline {
 	
 	alphabet {
-		floor f #010101; 
-		wall * #111111;
-		entrance  e #123456;
-		exit  x #000000;
-		pillar | #123123;
-		water ~ #123123;
+		floor f #907558; 
+		wall * #A9A9A9;
+		entrance  e #00FF00;
+		exit  x #FF0000;
+		water ~ #0000FF;
 	}	
 	
 	options {
-		seed: 12;
-		size: 4x4;
+		seed: 10;
+		size: 7x7;
 		tiletype: f;
 	}
 	
 	module firstModule {
 		rules {
 			addWalls:
-			ffff,
-			ffff,
-			ffff,
-			ffff
+			fffffff,
+			fffffff,
+			fffffff,
+			fffffff,
+			fffffff,
+			fffffff,
+			fffffff			
 			->
-			****,
-			*ff*,
-			*ff*,
-			****;
+			*******,
+			*fffff*,
+			*ffffF*,
+			*fffff*,
+			*fffff*,
+			*fffff*,
+			*******;
 			addEntrance: 
 			*,
 			f 
@@ -34,13 +39,15 @@ pipeline {
 			e,
 			f;
 			addExit: 
-			f* 
+			f,
+			* 
 			-> 
-			fx;
-			addWall:
-			f,f,f,f,f,f,f,f
+			f,
+			x;
+			addWater:
+			f,f,f,f
 			-> 
-			*,*,*,*,*,*,*,*;
+			~,~,~,~;
 			
 		}
 		

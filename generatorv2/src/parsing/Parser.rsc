@@ -21,16 +21,21 @@ public void parseProject(Tree tree, loc projectFile){
     AbstractPipeline project = implodePipeline(tree);
 }
 	
-private LudoscopeProject parseAndCheck(Tree tree){
+private TransformationArtifact parseAndCheck(Tree tree){
 	AbstractPipeline project = implodePipeline(tree);
 	
-	LudoscopeProject artifact = transformPipeline(project);
+	TransformationArtifact artifact = transformPipeline(project);
 	//artifact = checkTransformationArtifact(artifact);
+	if (artifact.errors != []){
+		println("There were errors found while parsing the project:");
+		for (ParsingError error <- artifact.errors)
+			println(errorToString(error));
+	}
 	return artifact;	
 }
 
 	
-public ExecutionArtifact executeProject(LudoscopeProject artifact){
+public ExecutionArtifact executeProjectAndCheck(LudoscopeProject artifact){
 	arbSeed(artifact.options.randomseed);
 	ExecutionArtifact newArtifact = executeProject(artifact);
 	
@@ -50,11 +55,13 @@ public LudoscopeProject parseProjectFromLoc(loc projectFile){
 } 
 
 public void runProject(Tree tree, loc projectFile){
-	LudoscopeProject artifact = parseAndCheck(tree);
+	TransformationArtifact artifact = parseAndCheck(tree);
 	println("System Message: Parsed and checked");
 	
-	arbSeed(artifact.options.randomseed);
-	ExecutionArtifact newArtifact = executeProject(artifact);
+	if(artifact.errors != []) return;
+	
+	arbSeed(artifact.project.options.randomseed);
+	ExecutionArtifact newArtifact = executeProject(artifact.project);
 	
 	if(newArtifact.errors != []){
 		println("There were errors found while executing the project");

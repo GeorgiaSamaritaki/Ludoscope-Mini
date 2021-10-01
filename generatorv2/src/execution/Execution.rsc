@@ -21,13 +21,13 @@ public ExecutionArtifact executeProject(LudoscopeProject project){
 	ExecutionArtifact artifact = executionArtifact([], currentState, (), [], []);
 	
 	for (LudoscopeModule \module <- project.modules){
-			artifact = executeModule(artifact, \module);
-		    if(artifact.errors != []) return artifact;
-		    
-		    checkExitConstraints(artifact, \module.constraints);
-		    
-		    allHistory += artifact.history;
-		    artifact.history = [];
+		artifact = executeModule(artifact, \module);
+	    if(artifact.errors != []) return artifact;
+	    
+	    checkExitConstraints(artifact, \module.constraints);
+	    
+	    allHistory += artifact.history;
+	    artifact.history = [];
 	}
 
 	artifact.history = allHistory;

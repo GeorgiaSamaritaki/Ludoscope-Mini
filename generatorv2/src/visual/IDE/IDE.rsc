@@ -234,6 +234,7 @@ void viewProject(Model model)
 			//	for (str error <- model.projectViewInfo.parsedProject.errors)
 			//		h4(error);
 			else{
+				viewAlphabet(model.projectViewInfo.parsedProject.alphabet);
 				viewGrammar(model);
 				viewPipeline(model);
 			}
@@ -399,7 +400,7 @@ public void view(Model model) {
 //		//BugType selectedBugType
 //	];
 	
-private loc projectsFolder = |project://generatorv2/src/tests/test1|;
+private loc projectsFolder = |project://generatorv2/src/tests|;
 
 Model init() {
 	Mode mode = grammar2mode("Project pipeline", #Pipeline);
@@ -490,7 +491,7 @@ Model update(Msg msg, Model model) {
   		model.view = newView;
   	}
   	case executeProject():{
-  		model.executionViewInfo.executionArtifact = executeProject(model.projectViewInfo.parsedProject);
+  		model.executionViewInfo.executionArtifact = executeProjectAndCheck(model.projectViewInfo.parsedProject);
   		model.view = executionView();
   		println("Executed project");
   	}
@@ -545,6 +546,29 @@ Model tryAndParse(Model model){
 	model.projectViewInfo.parsedProject = parseProjectFromLoc(projectFile);
 
 	return model;
+}
+
+void viewAlphabet(AlphabetMap alphabet){
+div(class("scrollBox container col-md-12"), () {
+		h3("Alphabet");
+		hr();
+	div(class("scrollBox container col-md-12 alphabetBox"), () {
+		for (str entryName <- alphabet){
+			div(class(" alphabetItem"), () {
+				svg(height("30px"), width("30px"), () {
+					rect(
+						style("x:0;y:0;"),
+					 	width("30"), 
+					 	height("30"),
+					 	fill(alphabet[entryName].color), 
+					 	stroke("black"),
+					 	strokeWidth("1"));
+				});
+				h4(alphabet[entryName].name);
+			});
+		}
+	});
+});
 }
 
 

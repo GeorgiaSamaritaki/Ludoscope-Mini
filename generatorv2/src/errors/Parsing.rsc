@@ -11,7 +11,6 @@ module errors::Parsing
 
 data ParsingError
 	= imploding(loc fileLocation)
-	| version(str version)
 	| fileNotFound(loc fileLocation)
 	| parsing(loc fileLocation)
 	| ambiguity(loc fileLocation, str usedSyntax)
@@ -21,6 +20,7 @@ data ParsingError
 	| rightAndLeftHandSize(int leftWidth, int leftHeight, 
 		int rightWidth, int rightHeight, loc fileLocation)
 	| propertyName(str propertyName, loc fileLocation)
+	| nonExistentRule(str ruleName, loc fileLocation)
 	| nameType(str expectedType, str foundType, loc fileLocation);
 	
 str errorToString(parsing(loc fileLocation))
@@ -43,12 +43,6 @@ str errorToString(imploding(loc location))
 	return "Parsing error: could not implode the parsing tree to
 		the AST.
 		File: <location.path>";
-}
-
-str errorToString(version(str version))
-{
-	return "Version error: LL was build for version 0.6f of Ludoscope.
-		 Version of input: <version>";
 }
 
 str errorToString(fileNotFound(loc fileLocation))
@@ -94,6 +88,14 @@ str errorToString(propertyName(str propertyName, loc fileLocation))
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
+
+str errorToString(nonExistentRule(str ruleName, loc fileLocation))
+{
+	return "Error: Rule <ruleName> does not exist in rules specified in recipe 
+		File: <fileLocation.path>
+		Line: <fileLocation.begin.line>";
+}
+
 
 str errorToString(nameType(str expectedType, str foundType, loc fileLocation))
 {

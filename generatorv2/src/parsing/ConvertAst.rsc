@@ -2,16 +2,25 @@ module parsing::ConvertAst
 
 import parsing::AST;
 import parsing::DataStructures;
+import errors::Parsing;
 
 import IO;
 import List;
-public LudoscopeProject transformPipeline(Pipeline project){
-
-	AlphabetMap alphabet = getAlphabetMap(project.alphabet.symbols);
-	Options options = project.options;
-	list[LudoscopeModule] modules = getModules(project.modules); 
-
-	return ludoscopeProject(alphabet, options, modules, []);
+public TransformationArtifact transformPipeline(Pipeline project){
+	TransformationArtifact artifact = transformationArtifact(
+		ludoscopeProject(
+			getAlphabetMap(project.alphabet.symbols),
+			project.options,
+			[], 
+			[]
+		),
+			[]
+	);
+	
+	artifact = getModules(project, artifact); 
+println("<artifact.errors>");
+	//ludoscopeProject(alphabet, options, modules, []);
+	return artifact;
 }
 
 private AlphabetMap getAlphabetMap(list[SymbolInfo] symbols){
@@ -23,7 +32,9 @@ private AlphabetMap getAlphabetMap(list[SymbolInfo] symbols){
 	return alphMap;
 } 
 
-private list[LudoscopeModule] getModules(list[Module] modules){
+private TransformationArtifact getModules(Pipeline project, 
+										 TransformationArtifact artifact ){
+	list[Module] modules = project.modules;
 	list[LudoscopeModule] ldModules = [];
 	
 	visit (modules){
@@ -32,37 +43,49 @@ private list[LudoscopeModule] getModules(list[Module] modules){
 			 		Recipe recipe,
 			 		list[Constraint] constraints) :
 		{	
-			RuleMap rulemap = getRules(rules.rules);
-			RecipeList recipe =  checkRecipeList(recipe.calls, rulemap);
+			RuleMap rulemap = getRules(rules, artifact);
+			RecipeList recipe =  checkRecipeList(recipe, rulemap, artifact);
 			ldModules += ludoscopeModule(name.val,
 									   rulemap,
 									   recipe,
 									   constraints);
 		}
 	}
-	return ldModules;
+	artifact.project.modules = ldModules;
+	return artifact;
 }
 
-private RuleMap getRules(list[Rule] rules){
+private RuleMap getRules(Rules \rules, TransformationArtifact artifact){
+	list[Rule] rules = \rules.rules;
 	RuleMap ruleMap = ();
 	
 	for(Rule r <- rules){
 		TileMap lhs = patternToTilemap(r.leftHand.patterns),
 				rhs = patternToTilemap(r.rightHand.patterns);
-		if(!areSameDimensions(lhs,rhs)) 
+		if(!areSameDimensions(lhs,rhs)){ 
 			println("Error: Incorrect size length lhs rhs for rule <r.name> \n <lhs> \n <rhs> ");
+			artifact.error +=[rightAndLeftHandSize(size(lhs), 
+							size(lhs[0]), 
+							size(rhs), 
+							size(rhs[0]), 
+							r@location)];
+		}
 		ruleMap[r.name.val] = ludoscopeRule(lhs,rhs);
 	}
 			
 	return ruleMap;
 }
 
-private RecipeList checkRecipeList(RecipeList calls, RuleMap rules){
+private RecipeList checkRecipeList(Recipe recipe, 
+								   RuleMap rules,
+								   TransformationArtifact artifact){
+    RecipeList calls = recipe.calls;
 	visit (calls){
 		case rulename(str name) : 
-			if(name notin rules) 
-					println("Error: Rule <name> specified in recipe
-						does not exist in rules");
+			if(name notin rules){
+				println("Error: Rule <name> specified in recipe does not exist in rules ");
+				artifact.errors += [nonExistentRule(name, recipe@location)];
+			}
 	}
 	return calls;
 }

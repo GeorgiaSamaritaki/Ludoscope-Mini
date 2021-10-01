@@ -11,34 +11,22 @@ pipeline {
 	
 	options {
 		seed: 12;
-		size: 10x10;
+		size: 4x4;
 		tiletype: f;
 	}
 	
 	module firstModule {
 		rules {
 			addWalls:
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff,
-			ffffffffff
+			ffff,
+			ffff,
+			ffff,
+			ffff
 			->
-			**********,
-			*ffffffff*,
-			*ffffffff*,
-			*ffffffff*,
-			*ffffffff*,
-			*ffffffff*,
-			*ffffffff*,
-			*ffffffff*,
-			*ffffffff*,
-			**********;
+			****,
+			*ff*,
+			*ff*,
+			****;
 			addEntrance: 
 			*,
 			f 

@@ -13,7 +13,22 @@ public parsing::AST::Pipeline implodePipeline(Tree tree)
   
 public parsing::AST::Pipeline parsePipelineToAST(loc location)
   = implodePipeline(LD_parse(location));
-  
+ 
+anno loc Pipeline@location;
+anno loc Alphabet@location;
+anno loc SymbolInfo@location;
+anno loc Options@location;
+anno loc Module@location;
+anno loc Rules@location;
+anno loc Rule@location;
+anno loc Pattern@location;
+anno loc Recipe@location;
+anno loc Call@location;
+anno loc CreateGraph@location;
+anno loc Expression@location;
+anno loc ConstraintType@location;
+
+
 
 ////////////////////////////////////////////////
 // AST
