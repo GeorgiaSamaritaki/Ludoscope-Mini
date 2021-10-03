@@ -17,9 +17,9 @@ public ExecutionArtifact checkNonExitConstraints(
 ){
 	for(c <-constraints){
 		if(c.typ != onexit()){
-			println("Checking constraint <c.name>");
+			//println("Checking constraint <c.name>");
 			artifact = checkConstraint(artifact, c, c.typ);
-			println("Finished checking constraint <c.name>");
+			//println("Finished checking constraint <c.name>");
 		}
 	}
 	

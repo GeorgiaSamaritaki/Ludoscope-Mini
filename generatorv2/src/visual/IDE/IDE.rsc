@@ -21,6 +21,7 @@ import errors::Parsing;
 import parsing::Parser;
 import parsing::DataStructures;
 import parsing::Syntax;
+import errors::Parsing;
 
 /* Execution */
 import execution::Execution;
@@ -47,12 +48,11 @@ App[Model] ldWebApp()
 
 alias ProjectViewInfo
 	= tuple[
-		str initialSrc,
-		str updatedSrc,
+		str src,
 		Mode mode, 
 		list[str] projectFiles,
 		str selectedFile,
-		LudoscopeProject parsedProject
+		TransformationArtifact transformationArtifact
 	];
 	
 alias ExecutionViewInfo
@@ -101,13 +101,12 @@ public void viewHeader(Model model) {
 }
 
 
-void drawSymbolMap(SymbolMap symbolMap, int svgWidth)
-{
+void drawSymbolMap(SymbolMap symbolMap, int svgWidth, int svgHeight){
+	int tileHeight = svgHeight / size(symbolMap);
 	int tileWidth = svgWidth / size(symbolMap[0]);
-	int tileHeight = svgWidth / size(symbolMap);
 	
 	if(tileHeight < tileWidth) tileWidth = tileHeight;
-	int svgHeight = tileWidth * size(symbolMap);
+	svgWidth = tileWidth * size(symbolMap[0]);
 	
 	//println("svgw <svgWidth> svgHeight <svgHeight> tile width <tileWidth>");
 	
@@ -130,48 +129,45 @@ void drawSymbolMap(SymbolMap symbolMap, int svgWidth)
 	});
 }
 
-int calculateSvgHeight(int width, int tilesHor) {
-	int tileWidth = width / tilesHor;
-	if (tileWidth == width)
-		tileWidth = width /2;
-	return tileWidth * tilesHor;
+int calculateSvgHeight(int width, int tileHor) {
+	if (tileHor == 1)  return width /2;
+	return width;
 }
 
 SymbolMap TileMapToSymbolMap(TileMap tileMap, AlphabetMap alphabet){
 	return [[alphabet[tile] | str tile <- row] | list[str] row <- tileMap];
 }
 
-void drawRule(AlphabetMap alphabet, LudoscopeRule rule){
+void drawRule(AlphabetMap alphabet, LudoscopeRule rule, str ruleName){
 	int svgWidth = 100;
-	int svgHeight 
-		= calculateSvgHeight(svgWidth, size(rule.lhs));
+	int svgHeight = calculateSvgHeight(svgWidth, size(rule.lhs));
 	
-	//println("For rule <size(rule.lhs[0])>/<size(rule.rhs)> svgHeight <svgHeight>");
+	//println("For rule <ruleName> svgHeight <svgWidth>");
 	
-	div(class("row"), style(<"height", "<svgHeight>px;">),() {
-  		div(class("col-md-4 svgWrapper text-center"),  () {
-	  		SymbolMap symbolMap = TileMapToSymbolMap(rule.lhs, alphabet);
-	  		drawSymbolMap(symbolMap, svgWidth);
-  		});
-	  	div(class("col-md-2 arrow"), () {
-	  		text("➞");
-	  	});
-		div(class("col-md-4 svgWrapper text-center"), style(<"height", "<svgHeight>px;">), () {
-			SymbolMap symbolMap = TileMapToSymbolMap(rule.rhs, alphabet);
-			drawSymbolMap(symbolMap, svgWidth);
-		});
-		//div(class("col-md-1"), () {
-		//	viewOptionsRule(rule.reflections, madScores[0].score);
-		//});
+	div(class("row"),() {
+		h4("<ruleName>");
+		div(class("ruleBox"),() {
+	  		div(  () {
+		  		SymbolMap symbolMap = TileMapToSymbolMap(rule.lhs, alphabet);
+		  		drawSymbolMap(symbolMap, svgWidth, svgHeight);
+	  		});
+		  	div(class(" arrow"), () {
+		  		text("➞");
+		  	});
+			div( () {
+				SymbolMap symbolMap = TileMapToSymbolMap(rule.rhs, alphabet);
+				drawSymbolMap(symbolMap, svgWidth, svgHeight);
+			});
+		});		
 	});
 }
 
 void viewGrammar(Model model){
 	println("view Grammar");
 	AlphabetMap alphabet = 
-		model.projectViewInfo.parsedProject.alphabet;
+		model.projectViewInfo.transformationArtifact.project.alphabet;
 
-	list[LudoscopeModule] modules = model.projectViewInfo.parsedProject.modules;
+	list[LudoscopeModule] modules = model.projectViewInfo.transformationArtifact.project.modules;
 	
 	div(class("scrollBox container col-md-12"), () {
 		for(LudoscopeModule \module <- modules){
@@ -179,12 +175,7 @@ void viewGrammar(Model model){
 			hr();
 			for (str ruleName <- \module.rules){
 				LudoscopeRule rule = \module.rules[ruleName];
-			 	div(class("row"), () {
-			  		h4(ruleName);
-			  		//h4(rule);
-			  	});
-			  	
-			  	drawRule(alphabet, rule);
+			  	drawRule(alphabet, rule, ruleName);
 				hr();
 		  	}
 		}
@@ -194,14 +185,14 @@ void viewGrammar(Model model){
 void viewPipeline(Model model){
 	h3("Module Pipeline of \'<model.projectViewInfo.selectedFile>\'");
 	rel[str, str] graph = {};
-	for (int i <- [1 .. size(model.projectViewInfo.parsedProject.modules)])
+	for (int i <- [1 .. size(model.projectViewInfo.transformationArtifact.project.modules)])
 	{
-		LudoscopeModule \module = model.projectViewInfo.parsedProject.modules[i-1];
-		LudoscopeModule higherModule = model.projectViewInfo.parsedProject.modules[i];
+		LudoscopeModule \module = model.projectViewInfo.transformationArtifact.project.modules[i-1];
+		LudoscopeModule higherModule = model.projectViewInfo.transformationArtifact.project.modules[i];
 		
 		graph += {<"<\module.name>", "<higherModule.name>">};
 	}
-	 println("graph <graph> <size(model.projectViewInfo.parsedProject.modules)>");
+	 println("graph <graph> <size(model.projectViewInfo.transformationArtifact.project.modules)>");
 	dagre("pipeline", rankdir("LR"), width(500), height(500), marginx(100), marginy(100), (N n, E e) {
 	    for (str x <- graph<0> + graph<1>) {
 	      n(x, shape("circle"), () {
@@ -217,26 +208,49 @@ void viewPipeline(Model model){
 	
 }
 
+void viewParsingErrors (list[ParsingError] errors){
+//<div class="danger">
+//  <p><strong>Danger!</strong> Some text...</p>
+//</div>
+	div(class("danger"), (){
+		p((){
+			text("Parsing errors");			
+			
+		});
+		ul((){
+			for(ParsingError error <- errors){
+				li(errorToString(error));
+			}
+		});
+	});
+}
+
+
 void viewProject(Model model)
 {
   div(class("container"), () {
     div(class("row"), () {
 		div(class("col-md-6"), () {
+			h3 ("Selected file: <model.projectViewInfo.selectedFile>");
 			button(class("saveButton btn btn-secondary"), onClick(saveChanges()), "Save changes");
 
-			codeMirrorWithMode("cm", model.projectViewInfo.mode, onChange(cmChange), style(("height": "50%")),
-			  lineNumbers(true), \value(model.projectViewInfo.initialSrc), lineWrapping(true), class("cm-s-3024-night"));
+			codeMirror("cm", onChange(cmChange), style(("height": "50%")),
+			  lineNumbers(true), \value(model.projectViewInfo.src), lineWrapping(true), class("cm-s-3024-night"));
 		});
 		div(class("col-md-6"), () {
-			if (model.projectViewInfo.parsedProject == undefinedProject())
+			if (model.projectViewInfo.transformationArtifact.project == undefinedProject())
 				h3("No project to parse..");
-			//else if (size(model.projectViewInfo.parsedProject.errors) > 0)
-			//	for (str error <- model.projectViewInfo.parsedProject.errors)
+			//else if (size(model.projectViewInfo.transformationArtifact.project.errors) > 0)
+			//	for (str error <- model.projectViewInfo.transformationArtifact.project.errors)
 			//		h4(error);
 			else{
-				viewAlphabet(model.projectViewInfo.parsedProject.alphabet);
-				viewGrammar(model);
-				viewPipeline(model);
+				if(model.projectViewInfo.transformationArtifact.errors != [])
+					viewParsingErrors(model.projectViewInfo.transformationArtifact.errors);	
+				else{
+					viewAlphabet(model.projectViewInfo.transformationArtifact.project.alphabet);
+					viewGrammar(model);
+					viewPipeline(model);
+				}
 			}
 		});
     });
@@ -294,25 +308,26 @@ void viewHistory(Model model)
 }
 
 void viewExecution(model){
-println("view ex");
 	if (model.executionViewInfo.executionArtifact == emptyExecutionArtifact()){
 		h3("The project stil contains parsing errors..");
+	}else if(model.executionViewInfo.executionArtifact.errors != []){
+	  	h3("The project contains execution errors..");
 	}else{
+		println("view ex");
 		ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
 		
 		div(class("container"), () {
 			div(class("row"), () {
 				/* History */
 				viewHistory(model);
-				/* Pipeline, maps, rule */
+				/* Visual */
 				div(class("col-md-6"), () {
 					HistoryEntry step = history[model.executionViewInfo.currentStep];
 				
-					LudoscopeProject project = model.projectViewInfo.parsedProject;
+					LudoscopeProject project = model.projectViewInfo.transformationArtifact.project;
 	
 					AlphabetMap alphabet = project.alphabet;
 					
-					/* Maps */
 					TileMap tileMap = step.before;	
 					int svgWidth = 200;
 					int svgHeight 
@@ -322,57 +337,21 @@ println("view ex");
 					
 				  		div(class("col-md-4 svgWrapper text-center"),  () {
 					  		SymbolMap symbolMap = TileMapToSymbolMap(step.before, alphabet);
-					  		drawSymbolMap(symbolMap, svgWidth);
+					  		drawSymbolMap(symbolMap, svgWidth, svgHeight);
 				  		});
 					  	div(class("col-md-2 arrow"), () {
 					  		text("➞");
 					  	});
 						div(class("col-md-4 svgWrapper text-center"), style(<"height", "<svgHeight>px;">), () {
 							SymbolMap symbolMap = TileMapToSymbolMap(step.after, alphabet);
-							drawSymbolMap(symbolMap, svgWidth);
+							drawSymbolMap(symbolMap, svgWidth, svgHeight);
 						});
 					});
 					hr();
 					
-					/* Rule */
-					//div(class("row ruleRow"), () {
-					//	Rule rule = \module.rules[step.ruleName];
-					//	drawRule(alphabet, rule);
-					//});
 				});
-				/* Properties */
-				//PropertyReport propertyReport 
-				//	= model.executionViewInfo.executionArtifact.propertyReport;
-				//list[Property] properties = propertyReport.specification.properties;
-				//PropertyStates propertyStates 
-				//	= propertyReport.history[1 + model.executionViewInfo.currentStep].propertyStates;
-				//
-				//div(class("col-md-3 propertyList"), () {
-		//			h3("Properties");
-		//			table(class("table table-condensed"), () {
-		//				tbody(() {
-		//					for(int i <- [0 .. size(properties)])
-		//					{
-		//						Property property = properties[i];
-		//						str rowClass;
-		//						if (propertyStates[i])
-		//						{
-		//							rowClass = "success";
-		//						}
-		//						else
-		//						{
-		//							rowClass = "danger";
-		//						}
-		//						tr(class(rowClass), () {
-		//							th(scope("row"), () {
-		//								text(propertyToText(property));
-		//							});
-		//						});
-		//					}
-		//				});
-		//			});
-				});
-			//});
+				
+			});
 		});
 	}
 }
@@ -409,11 +388,10 @@ Model init() {
 	str src = readFile(projectsFolder + selectedFile);
 	ProjectViewInfo projectViewInfo = <
 			src, 
-			src, 
 			mode, 
 			projects, 
 			selectedFile, 
-			undefinedProject()
+			emptyArtifact()
 		>;
 		
 	ExecutionViewInfo executionViewInfo = <
@@ -469,15 +447,8 @@ private str updateSrc(str src, int fromLine, int fromCol, int toLine, int toCol,
   int to = from + size(removed);
   
   str newSrc;
-  if (to < size(src))
-  {
-    newSrc = src[..from] + text + src[to..];
-  }
-  else
-  {
-  	newSrc = src[..from] + text;
-  	
-  }  
+  if (to < size(src)) newSrc = src[..from] + text + src[to..];
+  else newSrc = src[..from] + text;
   return newSrc;
 }
 
@@ -491,50 +462,28 @@ Model update(Msg msg, Model model) {
   		model.view = newView;
   	}
   	case executeProject():{
-  		model.executionViewInfo.executionArtifact = executeProjectAndCheck(model.projectViewInfo.parsedProject);
+  	println("trying to execute");
+  		model.executionViewInfo.executionArtifact = executeProjectAndCheck(model.projectViewInfo.transformationArtifact);
   		model.view = executionView();
   		println("Executed project");
   	}
     case cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed):{
-      	model.projectViewInfo.updatedSrc = updateSrc(model.projectViewInfo.updatedSrc, fromLine, fromCol, toLine, toCol, text, removed);
-    	println("updating source \n <model.projectViewInfo.updatedSrc>");
+      	model.projectViewInfo.src = updateSrc(model.projectViewInfo.src, fromLine, fromCol, toLine, toCol, text, removed);
+    	println("updating source \n <model.projectViewInfo.src>");
 	}
-    case selectedFile(str file):
-    {
+    case selectedFile(str file):{
     	model = selectFile(model, file);
     	model.view = projectView();
     }
     case saveChanges():{
     	loc file = projectsFolder + model.projectViewInfo.selectedFile;
-    	writeFile(file, model.projectViewInfo.updatedSrc);
+    	writeFile(file, model.projectViewInfo.src);
     	model = tryAndParse(model);
     	
     }
-    case setStep(int newStep):
-    {
+    case setStep(int newStep):{
     	model.executionViewInfo.currentStep = newStep;
     }
-    //case startNewAnalysis():
-    //{
-    //	model.bugReportViewInfo.bugReport 
-    //		= analyseProject(model.projectViewInfo.parsedProject.project, 
-    //			model.bugReportViewInfo.itterations);
-    //}
-    //case setBugType(BugType bugType):
-    //{
-    //	model.bugReportViewInfo.selectedBugType = bugType;
-    //}
-    //case inspectExecution(ExecutionArtifact executionArtifact, int currentStep):
-    //{
-    //	model.view = executionView();
-    //	model.executionViewInfo.executionArtifact = executionArtifact;
-    //	model.executionViewInfo.currentStep = currentStep;
-    //}
-    //case generateSoundLevel():
-    //{
-    //	model = generateSoundLevel(model);
-    //	model.view = executionView();
-    //}
   }
   return model;
 }
@@ -543,7 +492,7 @@ Model tryAndParse(Model model){
 	println("tryAndParse Called");
   	str file =  model.projectViewInfo.selectedFile;
 	loc projectFile = projectsFolder + file;
-	model.projectViewInfo.parsedProject = parseProjectFromLoc(projectFile);
+	model.projectViewInfo.transformationArtifact = parseProjectFromLoc(projectFile);
 
 	return model;
 }
@@ -574,7 +523,8 @@ div(class("scrollBox container col-md-12"), () {
 
 Model selectFile(Model model, str file){	
 	model.projectViewInfo.selectedFile = file;
-	model.projectViewInfo.initialSrc = readFile(projectsFolder + file);
+	model.projectViewInfo.src = readFile(projectsFolder + file);
+	
 	model = tryAndParse(model);
 	
 	return model;

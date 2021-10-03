@@ -35,9 +35,12 @@ private TransformationArtifact parseAndCheck(Tree tree){
 }
 
 	
-public ExecutionArtifact executeProjectAndCheck(LudoscopeProject artifact){
-	arbSeed(artifact.options.randomseed);
-	ExecutionArtifact newArtifact = executeProject(artifact);
+public ExecutionArtifact executeProjectAndCheck(TransformationArtifact artifact){
+	if(artifact.errors != []) 
+		return emptyExecutionArtifact();
+		
+	arbSeed(artifact.project.options.randomseed);
+	ExecutionArtifact newArtifact = executeProject(artifact.project);
 	
 	if(newArtifact.errors != []){
 		println("There were errors found while executing the project");
@@ -46,11 +49,9 @@ public ExecutionArtifact executeProjectAndCheck(LudoscopeProject artifact){
 	return newArtifact;
 }  
 
-public LudoscopeProject parseProjectFromLoc(loc projectFile){
+public TransformationArtifact parseProjectFromLoc(loc projectFile){
 	AbstractPipeline project = implodePipeline(LD_parse(projectFile));
-	
-	LudoscopeProject artifact = transformPipeline(project);
-	//artifact = checkTransformationArtifact(artifact);
+	TransformationArtifact artifact = transformPipeline(project);
 	return artifact;	
 } 
 

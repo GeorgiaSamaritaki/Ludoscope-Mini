@@ -6,27 +6,28 @@ pipeline {
 		entrance  e #00FF00;
 		exit  x #FF0000;
 		pillar | #964B00;
-		water ~ #0000FF;
 	}	
 	
 	options {
 		seed: 12;
-		size: 4x4;
+		size: 5x5;
 		tiletype: f;
 	}
 	
 	module firstModule {
 		rules {
 			addWalls:
-			ffff,
-			ffff,
-			ffff,
-			ffff
+			fffff,
+			fffff,
+			fffff,
+			fffff,
+            fffff
 			->
-			****,
-			*ff*,
-			*ff*,
-			****;
+			*****,
+			*fff*,
+			*fff*,
+            *fff*,
+			*****;
 			addEntrance: 
 			*,
 			f 
@@ -37,10 +38,10 @@ pipeline {
 			f* 
 			-> 
 			fx;
-			addWall:
-			f,f,f,f,f,f,f,f
+			addPillar:
+			f
 			-> 
-			*,*,*,*,*,*,*,*;
+			|;
 			
 		}
 		
@@ -49,7 +50,7 @@ pipeline {
 			addEntrance;
 			addExit;
 			path = CreatePath(e,x);
-			addWall;
+			addPillar;
 		}
 		
 		on exit constraint a: e == true;

@@ -26,6 +26,7 @@ data ParsingError
 str errorToString(parsing(loc fileLocation))
 {
 	return "Parsing error:
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -34,6 +35,7 @@ str errorToString(ambiguity(loc fileLocation, str usedSyntax))
 {
 	return "Parsing error: ambiguity found while parsing.
 		Syntax: <usedSyntax>
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -42,6 +44,7 @@ str errorToString(imploding(loc location))
 {
 	return "Parsing error: could not implode the parsing tree to
 		the AST.
+		Loc: <fileLocation>
 		File: <location.path>";
 }
 
@@ -60,6 +63,7 @@ str errorToString(extension(loc fileLocation))
 str errorToString(mapType(str mapType, loc fileLocation))
 {
 	return "Type error: \'<mapType>\' maps are not supported by LL
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -68,6 +72,7 @@ str errorToString(mapSize(int size, int symbols, loc fileLocation))
 {
 	return "Error: the declared size of the map (<size>) does not match with
 		the amount of symbols that follow (<symbols>).
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -77,6 +82,7 @@ str errorToString(rightAndLeftHandSize(int leftWidth, int leftHeight,
 {
 	return "Error: the dimensions of the left hand (<leftWidth>, <leftHeight>) 
 	do not match with	the dimensions of the right hand (<rightWidth>, <rightHeight>).
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -85,6 +91,7 @@ str errorToString(propertyName(str propertyName, loc fileLocation))
 {
 	return "Error: the identifier \"<propertyName>\" used in defining a property 
 	cannot be located in the syntax Tree.
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -92,6 +99,7 @@ str errorToString(propertyName(str propertyName, loc fileLocation))
 str errorToString(nonExistentRule(str ruleName, loc fileLocation))
 {
 	return "Error: Rule <ruleName> does not exist in rules specified in recipe 
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }
@@ -100,6 +108,7 @@ str errorToString(nonExistentRule(str ruleName, loc fileLocation))
 str errorToString(nameType(str expectedType, str foundType, loc fileLocation))
 {
 	return "Error: A name referenced to a <foundType>, while a <expectedType> name was expected.
+		Loc: <fileLocation>
 		File: <fileLocation.path>
 		Line: <fileLocation.begin.line>";
 }

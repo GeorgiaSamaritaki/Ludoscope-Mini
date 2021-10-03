@@ -18,7 +18,6 @@ public TransformationArtifact transformPipeline(Pipeline project){
 	);
 	
 	artifact = getModules(project, artifact); 
-println("<artifact.errors>");
 	//ludoscopeProject(alphabet, options, modules, []);
 	return artifact;
 }
@@ -32,6 +31,7 @@ private AlphabetMap getAlphabetMap(list[SymbolInfo] symbols){
 	return alphMap;
 } 
 
+//Unfortunately this became overly complex in order to handle errors
 private TransformationArtifact getModules(Pipeline project, 
 										 TransformationArtifact artifact ){
 	list[Module] modules = project.modules;
@@ -43,27 +43,32 @@ private TransformationArtifact getModules(Pipeline project,
 			 		Recipe recipe,
 			 		list[Constraint] constraints) :
 		{	
-			RuleMap rulemap = getRules(rules, artifact);
-			RecipeList recipe =  checkRecipeList(recipe, rulemap, artifact);
+			tuple[RuleMap ruleMap, 
+				  TransformationArtifact artifact] ruleTuple = 
+				  			getRules(rules.rules, artifact);
+			tuple[RecipeList recipe, 
+				  TransformationArtifact artifact] recipeTuple= 
+				  			checkRecipeList(recipe, ruleTuple.ruleMap, ruleTuple.artifact);
 			ldModules += ludoscopeModule(name.val,
-									   rulemap,
-									   recipe,
+									   ruleTuple.ruleMap,
+									   recipeTuple.recipe,
 									   constraints);
+			artifact = recipeTuple.artifact;
 		}
 	}
 	artifact.project.modules = ldModules;
 	return artifact;
 }
 
-private RuleMap getRules(Rules \rules, TransformationArtifact artifact){
-	list[Rule] rules = \rules.rules;
+private tuple[RuleMap, TransformationArtifact] 
+				getRules(list[Rule] rules, TransformationArtifact artifact){
 	RuleMap ruleMap = ();
 	
 	for(Rule r <- rules){
 		TileMap lhs = patternToTilemap(r.leftHand.patterns),
 				rhs = patternToTilemap(r.rightHand.patterns);
 		if(!areSameDimensions(lhs,rhs)){ 
-			println("Error: Incorrect size length lhs rhs for rule <r.name> \n <lhs> \n <rhs> ");
+			//println("Error: Incorrect size length lhs rhs for rule <r.name> \n <lhs> \n <rhs> ");
 			artifact.error +=[rightAndLeftHandSize(size(lhs), 
 							size(lhs[0]), 
 							size(rhs), 
@@ -73,10 +78,11 @@ private RuleMap getRules(Rules \rules, TransformationArtifact artifact){
 		ruleMap[r.name.val] = ludoscopeRule(lhs,rhs);
 	}
 			
-	return ruleMap;
+	return <ruleMap, artifact>;
 }
 
-private RecipeList checkRecipeList(Recipe recipe, 
+private tuple[RecipeList, TransformationArtifact] 
+					checkRecipeList(Recipe recipe, 
 								   RuleMap rules,
 								   TransformationArtifact artifact){
     RecipeList calls = recipe.calls;
@@ -87,7 +93,7 @@ private RecipeList checkRecipeList(Recipe recipe,
 				artifact.errors += [nonExistentRule(name, recipe@location)];
 			}
 	}
-	return calls;
+	return <calls, artifact>;
 }
 
 private TileMap patternToTilemap(list[str] pl){

@@ -22,6 +22,7 @@
   registerCodeMirror(salix);
   registerDagre(salix);
   $(document).ready(salix.start);
+  
 </script>
 
 <style>
@@ -202,14 +203,32 @@ color:black;
 .alphabetItem{
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
 	align-items: center;
+	min-width: 150px;
+	margin: 5px 0px;
 }
 .alphabetItem > h4{
 	margin: 0px 20px 0px 5px;
 }
+.danger {
+  background-color: #ffdddd;
+  border-left: 6px solid #f44336;
+    padding: 0px 20px;
+}
 
-
+.danger > p{
+    color: darkred;
+    font-size: x-large;
+}
+.danger > span {
+	padding: 10px;
+    color: darkred;
+    font-size: x-large;
+}
+.ruleBox{
+	display: flex;
+	justify-content: space-evenly;
+}
 
 </style>
 

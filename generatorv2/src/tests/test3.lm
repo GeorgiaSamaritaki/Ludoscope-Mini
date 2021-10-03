@@ -5,33 +5,40 @@ pipeline {
 		wall * #A9A9A9;
 		entrance  e #00FF00;
 		exit  x #FF0000;
-		water ~ #0000FF;
+		pillar | #964B00;
+		water ~ #ADD8E6;
 	}	
 	
 	options {
-		seed: 10;
-		size: 7x7;
+		seed: 12;
+		size: 10x10;
 		tiletype: f;
 	}
 	
 	module firstModule {
 		rules {
 			addWalls:
-			fffffff,
-			fffffff,
-			fffffff,
-			fffffff,
-			fffffff,
-			fffffff,
-			fffffff			
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff
 			->
-			*******,
-			*fffff*,
-			*ffffF*,
-			*fffff*,
-			*fffff*,
-			*fffff*,
-			*******;
+			**********,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			**********;
 			addEntrance: 
 			*,
 			f 
@@ -39,15 +46,13 @@ pipeline {
 			e,
 			f;
 			addExit: 
-			f,
-			* 
+			f* 
 			-> 
-			f,
-			x;
-			addWater:
-			f,f,f,f
+			fx;
+			addWall:
+			f,f,f,f,f,f,f,f
 			-> 
-			~,~,~,~;
+			*,*,*,*,*,*,*,*;
 			
 		}
 		
