@@ -53,8 +53,8 @@ pipeline {
 			addPillar;
 		}
 		
-		on exit constraint a: e == true;
-		resolvable constraint b: path == true; 
+		on exit constraint a: count(e) == 1;
+		resolvable constraint b: exists(path) == true; 
 		
 	}
 	

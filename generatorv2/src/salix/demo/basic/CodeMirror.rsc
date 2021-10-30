@@ -11,6 +11,7 @@ module salix::demo::basic::CodeMirror
 import salix::HTML;
 import salix::App;
 import salix::lib::CodeMirror;
+import IO;
 
 alias Model = tuple[list[Msg] changes, str src];
 
@@ -19,8 +20,8 @@ SalixApp[str] cmApp(str id = "root") = makeApp(id, init, view, update, parser=pa
 App[str] cmWebApp()
   = webApp(
       cmApp(), 
-      |project://generatorv2/src/salix/demo/basic/index.html|, 
-      |project://generatorv2/src|
+      |project://projectName/src/salix/demo/basic/index.html|, 
+      |project://projectName/src|
     );
 
 
@@ -33,8 +34,10 @@ data Msg
 
 Model update(Msg msg, Model model) {
   switch (msg) {
-    case m:myChange(int _, int _, int _, int _, str _, str _):
+    case m:myChange(int _, int _, int _, int _, str _, str _):{
+      println("Update called");
       model.changes += [m];
+  	}
   }
   return model;
 }
