@@ -1,17 +1,11 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-// Parsing errors
-// @brief        This file contains data types for parsing errors.
-// @contributor  Quinten Heijn - samuel.heijn@gmail.com - UvA
-// @date         05-04-2018
-//
-//////////////////////////////////////////////////////////////////////////////
-
 module errors::Parsing
 
 data ParsingError
 	= imploding(loc fileLocation)
 	| fileNotFound(loc fileLocation)
+	| duplicateAlphabetEntry(str abbreviation, loc fileLocation)
+	| duplicateRuleDefinition(str rulename, loc fileLocation)
+	| undefinedCharacterInRule(str c, str rulename, loc fileLocation)
 	| parsing(loc fileLocation)
 	| ambiguity(loc fileLocation, str usedSyntax)
 	| extension(loc fileLocation)
@@ -40,12 +34,12 @@ str errorToString(ambiguity(loc fileLocation, str usedSyntax))
 		Line: <fileLocation.begin.line>";
 }
 
-str errorToString(imploding(loc location))
+str errorToString(imploding(loc fileLocation))
 {
 	return "Parsing error: could not implode the parsing tree to
 		the AST.
 		Loc: <fileLocation>
-		File: <location.path>";
+		File: <fileLocation.path>";
 }
 
 str errorToString(fileNotFound(loc fileLocation))
@@ -53,6 +47,22 @@ str errorToString(fileNotFound(loc fileLocation))
 	return "Input error: could not find the following file: 
 		<fileLocation.path>";
 }
+
+str errorToString(duplicateAlphabetEntry(str abbreviation, loc fileLocation))
+{
+	return "Parsing error: Character <abbreviation> is already defined in Alphabet: <fileLocation>";
+}
+
+str errorToString(duplicateRuleDefinition(str rulename, loc fileLocation)){
+	return "Parsing error: Rule <rulename> is already defined in this module: <fileLocation>";
+}
+
+str errorToString(undefinedCharacterInRule(str c, str rulename, loc fileLocation))
+{
+	return "Parsing error: Character \"<c>\" in rule \"<rulename>\" is not defined in the Alphabet: 
+		<fileLocation.path>";
+}
+
 
 str errorToString(extension(loc fileLocation))
 {

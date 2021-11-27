@@ -10,24 +10,34 @@ import parsing::AST;
 import execution::Call;
 import execution::Constraints;
 
+import errors::Execution;
+
 public ExecutionArtifact executeProject(LudoscopeProject project){
 	
-	println("System Message: executeProject");
+	printSM("executeProject");
 	ExecutionHistory allHistory = [];
 	TileMap currentState = createTileMap(
 								project.options.height,
 								project.options.width,
 								project.options.tiletype);
-	ExecutionArtifact artifact = executionArtifact([], currentState, (), [], []);
+	ExecutionArtifact artifact = getEmptyExecutionArtifact();
+	artifact.currentState = currentState;
 	
 	for (LudoscopeModule \module <- project.modules){
+		TileMap input = artifact.currentState;
+	
 		artifact = executeModule(artifact, \module);
-	    if(artifact.errors != []) return artifact;
 	    
 	    checkExitConstraints(artifact, \module.constraints);
 	    
+	    //Create the variable for module
+	    TileMap output = artifact.currentState;
+	    
+	    artifact.variables[\module.name] = tilemapDifference(input,output);
+	    
 	    allHistory += artifact.history;
 	    artifact.history = [];
+	    if(artifact.errors != []) break;
 	}
 
 	artifact.history = allHistory;
@@ -38,17 +48,17 @@ public ExecutionArtifact executeModule(
 	ExecutionArtifact artifact, 
 	LudoscopeModule \module 
 ){
-	println("System Message: execute module");
+	printSM("execute module");
 
 	RecipeList recipe = \module.recipe;
 	for (Call call<- recipe){
 		artifact = executeCall(artifact, \module , call);
 		
-		println("checking constraints");
+		printError("checking constraints");
 		artifact = checkNonExitConstraints(artifact, \module.constraints);
-		if(artifact.errors != []) return artifact;
 		
 		artifact.currentState = artifact.output;
+		if(artifact.errors != []) return artifact;
 	}
 	
 	return artifact;

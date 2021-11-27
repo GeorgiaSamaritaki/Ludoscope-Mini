@@ -3,11 +3,10 @@ module parsing::DataStructures
 import errors::Parsing;
 import parsing::AST;
 
+import utility::TileMap;
+
 alias AbstractPipeline = parsing::AST::Pipeline;
 alias AbstractModuleList = list[parsing::AST::Module];
-
-alias TileMap = list[list[Tile]];
-alias Tile = str;
 
 alias RuleMap	= map[str, LudoscopeRule];
 alias RecipeList = list[Call];
@@ -15,7 +14,6 @@ alias AlphabetMap = map [str, AlphabetEntry];
 
 alias History = list[Transformation];
 alias Transformation = str;
-alias Coordinates = tuple[int x, int y];
 
 data TransformationArtifact
 	= transformationArtifact(
@@ -51,4 +49,11 @@ data LudoscopeRule
 		TileMap rhs
 	);
 
+public TransformationArtifact getEmptyTransformationArtifact() =
+	transformationArtifact(ludoscopeProject(
+			(), //AlphabetMap
+			undefined(), // Options
+			[], //modules
+			[] //History
+		), []);
 	

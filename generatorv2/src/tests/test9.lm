@@ -1,0 +1,28 @@
+pipeline {
+  alphabet{
+      floor f #907558; 
+	  entrance e #00FF00;
+	  spawn s #C8A2C8;
+	  wall * #8080800;
+  }
+	options {
+		seed: 12;
+		size: 5x5;
+		tiletype: f; 
+	}
+	module the_place {
+		rules {
+		  addWall:
+			f
+			->
+			*;
+
+		}
+		recipe {
+		  	wall1 = addWall;
+		  	addWall[notNextTo wall1]; 
+		}
+		;
+	}
+	;
+}

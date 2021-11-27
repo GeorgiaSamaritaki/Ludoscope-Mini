@@ -16,28 +16,6 @@ pipeline {
 	
 	module firstModule {
 		rules {
-			addWalls:
-			fffff,
-			fffff,
-			fffff,
-			fffff,
-            fffff
-			->
-			*****,
-			*fff*,
-			*fff*,
-            *fff*,
-			*****;
-			addEntrance: 
-			*,
-			f 
-			->  
-			e,
-			f;
-			addExit: 
-			f* 
-			-> 
-			fx;
 			addPillar:
 			f
 			-> 
@@ -46,18 +24,11 @@ pipeline {
 		}
 		
 		recipe {
-			addWalls;
-			addEntrance;
-			addExit;
-			path = CreatePath(e,x);
 			addPillar;
 		}
 		
-		on exit constraint a: count(e) == 1;
-		resolvable constraint b: exists(path) == true; 
-		
+		on exit constraint a: True;
 	}
-	
-	
+	on exit constraint a: True;	
 }
 

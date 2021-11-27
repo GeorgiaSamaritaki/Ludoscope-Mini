@@ -1,0 +1,76 @@
+pipeline {
+  alphabet{
+    floor f #907558; 
+	  entrance e #00FF00;
+	  spawn s #00FF00;
+	  wall * #8080800;
+  }
+	options {
+		seed: 12;
+		size: 25x25;
+		tiletype: f; 
+	}
+	module environment {
+		rules {
+		  addSpawn:
+		    f -> s;
+		}
+		
+		recipe {
+		    level_entrance = addSpawn;
+		}
+	}
+	module the_place {
+		rules {
+		  addWalls:
+			ffffffff,
+			ffffffff,
+			ffffffff,
+			ffffffff,
+			ffffffff,
+			ffffffff
+			->
+			********,
+			*ffffff*,
+			*ffffff*,
+			*ffffff*,
+			*ffffff*,
+			********;
+			addEntrance: 
+			*,
+			f 
+			->  
+			e,
+			f;
+		}
+		recipe {
+		  addWalls; 
+			place_entrance = addEntrance;
+		    path = CreatePath(place_entrance,level_entrance);
+		}
+	}
+	module vault {
+		rules {
+		  addWalls:
+			ffff,
+			ffff,
+			ffff,
+			ffff
+			->
+			****,
+			*ff*,
+			*ff*,
+			****;
+			addEntrance: 
+			*f -> ef;
+		}
+		recipe {
+		    addWalls; 
+			vault_entrance = addEntrance;
+			path1 = CreatePath(place_entrance,vault_entrance);
+		}
+        resolvable constraint inner_path: Exists(path1);
+	}
+	on exit constraint a: vault in the_place;
+    on exit constraint b: Exists(path);
+}

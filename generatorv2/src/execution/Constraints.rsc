@@ -2,14 +2,18 @@ module execution::Constraints
 
 import IO;
 import List;
+import Set;
 import analysis::graphs::Graph;
 
 import utility::TileMap;
 import errors::Execution;
 
 import parsing::DataStructures;
-import execution::DataStructures;
 import parsing::AST;
+
+import execution::DataStructures;
+import execution::Handlers;
+
 
 public ExecutionArtifact checkNonExitConstraints(
 	ExecutionArtifact artifact, 
@@ -38,22 +42,33 @@ public ExecutionArtifact checkExitConstraints(
 	return artifact;
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+// Constraint Types
+/////////////////////////////////////////////////////////////////////////////////
 private ExecutionArtifact checkConstraint(
 	ExecutionArtifact artifact, 
 	Constraint c,
 	onexit()
 ){
+	Value v;
+	<artifact, v> = eval(c.exp, artifact); 
+	if(artifact.errors != []) return artifact;
 	
-	visit(c.exp){
-		case e_eq(Expression lhs, Expression rhs):{ //oversimplification of expressions
-			visit(lhs.val){
-				case char(str char):{
-					list[Coordinates] ca = findInMap(artifact.output,char); 
-					if(ca ==[]) printError("On exit constraint <c.name> not met");
-				;}
-			}
+	visit(v){
+		case boolean(bool b):{
+			if(!b){
+				printError("Constraint non resolvable exiting.");
+				artifact.errors += [constraintNotMet(name)];
+			}else 
+				return artifact;
+		}
+		case integer(_):{ 
+			artifact.errors += [constraintEval(c.name, c@location)];
+			return artifact;
 		}
 	}
+	artifact.errors += [runtimeMachineError()];
+		
 	return artifact;
 }
 
@@ -62,15 +77,27 @@ private ExecutionArtifact checkConstraint(
 	Constraint c,
 	resolvable()
 ){
-	visit(c.exp){
-		case e_eq(Expression lhs, Expression rhs):{ //oversimplification of expressions
-			if(lhs.val == path()){
-				if("path" in artifact.graphs){	
-					artifact = checkPath("path", artifact, true);
-				}
-			}
+	
+	tuple[ExecutionArtifact artifact, Value v] t = eval(c.exp, artifact); 
+	artifact = t.artifact;
+	
+	if(artifact.errors != []) return artifact;
+	
+	println("constraint <c.name>");
+	visit(t.v){
+		case boolean(bool b):{
+			if(!b){ 
+				println("calling handler");
+				artifact = callHandler(c.name, artifact);
+			} 
+			return artifact;
+		}
+		case integer(_):{ 
+			artifact.errors += [constraintEval(c.name, c@location)];
+			return artifact;
 		}
 	}
+	artifact.errors += [runtimeMachineError()];
 		
 	return artifact;
 }
@@ -80,58 +107,139 @@ private ExecutionArtifact checkConstraint(
 	Constraint c,
 	nonresolvable()
 ){
+	Value v;
+	<artifact, v> = eval(c.exp, artifact); 
+	if(artifact.errors != []) return artifact;
 	
-	visit(c.exp){
-		case e_eq(Expression lhs, Expression rhs):{ //oversimplification of expressions
-			if(lhs.val == path()){
-				if("path" in artifact.graphs){	
-					artifact = checkPath("path", artifact, false);
-				printTileMap(artifact.output);
-				}
-			}
+	visit(v){
+		case boolean(bool b):{
+			if(!b){
+				printError("Constraint non resolvable exiting.");
+				artifact.errors += [constraintNotMet(name, c@location)];
+			}else 
+				return artifact;
+		}
+		case integer(_):{ 
+			artifact.errors += [constraintEval(c.name, c@location)];
+			return artifact;
 		}
 	}
+	artifact.errors += [runtimeMachineError()];
+		
 	return artifact;
 }
 
-private ExecutionArtifact checkPath(str name, ExecutionArtifact artifact, bool resolvable){
+/////////////////////////////////////////////////////////////////////////////////
+// Evaluation functions
+/////////////////////////////////////////////////////////////////////////////////
+
+private tuple[ExecutionArtifact, Value] eval(Expression exp, ExecutionArtifact artifact){
+	//println("Eval called with <exp>");
+	visit(exp){
+		case e_eq(Expression lhs, Expression rhs):{
+			Value l,r;
+			<artifact, l> = eval(lhs, artifact);
+			<artifact, r> = eval(rhs, artifact);
+			return <artifact, evalEq(l, r)>;
+		}
+	}
+	//I separated the visits cause it never went to the e_eq for some reason
+	visit(exp){
+		case e_val(Value val):{
+			return <artifact, val>;
+		}
+		case func(FunctionType ft, Name varName):{
+			Value f; 
+			<artifact, f> = evalFunc(ft, varName.val, artifact);
+			
+			return <artifact, f>;
+		}
+		case incl(str var1, str var2): {
+			if(var1 notin artifact.variables){
+				printError("Variable <var1> is not defined");
+				artifact.errors += [variableUndefined(var1, exp@location)];
+			}else if(var2 notin artifact.variables){
+				printError("Variable <var2> is not defined");
+				artifact.errors += [variableUndefined(var2, exp@location)];
+			}else 
+				return <artifact, evalIncl(var1, var2, artifact)>;
+		}
+		
+	}
+	printError("Non implemented expression <exp>");
+	artifact.errors += [notImplemented(exp@location)];
+
+	return <artifact, integer(1)>;
+}
+
+private Value evalEq(integer(int a), integer(int b)){
+	return boolean(a==b);
+}
+
+private Value evalEq(boolean(bool a), boolean(bool b)){
+	return boolean(a==b);
+}
+
+
+private Value evalIncl(str var1, str var2, ExecutionArtifact artifact){
+	set[Coordinates] var1coords = artifact.variables[var1],
+					var2coords = artifact.variables[var2];
+	
+	return boolean(var2coords <= fillInCoordinates(var1coords));
+}
+
+private tuple[ExecutionArtifact, Value] evalFunc(count(), str name, ExecutionArtifact artifact){
+	return <artifact, integer(countOccurences(name, artifact.output))>;
+}
+
+private tuple[ExecutionArtifact, Value] evalFunc(exists(), str name, ExecutionArtifact artifact){
+	return <artifact, boolean(inMap(name, artifact.output))>;
+}
+
+private tuple[ExecutionArtifact, Value] evalFunc(intact(), str name, ExecutionArtifact artifact){
 	HistoryEntry lastEntry = last(artifact.history);
+	
+	if(name notin artifact.graphs) return <artifact, boolean(true)>;
 	Path p = artifact.graphs[name];
 	//println("check path <lastEntry.coordinates> path:<p.path>");
-	list[Coordinates] intersection = lastEntry.coordinates & p.path;
+	
+	list[Coordinates] intersection = toList(lastEntry.coordinates) & p.path;
+	
 	if(intersection != []){
 		//path is broken, Recompute graph
 		Graph[Coordinates] newGraph = getGraph(artifact.output);
-		list[Coordinates] newPath = shortestPathInGraph(newGraph, p.from, p.to, artifact.output);
+		list[Coordinates] newPath = shortestPathPair(newGraph, p.from, p.to);
+		
 		//println("new path <newPath>");
 		if(newPath == []){
-			printError("<lastEntry.ruleName> in module <lastEntry.moduleName> destoyed path:<name>");
-			
-			if(resolvable){
-				HistoryEntry newEntry = entry(
-											artifact.output,
-											[],
-											intersection,
-											"Repair",
-											"Path");
-				printSM("Trying to fix path...");
-				for(c <- intersection){
-					artifact.output = changeTile("f", c, artifact.output);
-				}
-				newEntry.after = artifact.output;
-				artifact.history += [newEntry];
-			}else{
-				printSM("Constraint non resolvable exiting.");
-				artifact.errors += ["exit"];
-			}
-			
-			
+			 //printError("<lastEntry.ruleName> in module <lastEntry.moduleName> destoyed path <name>");
+			//errors +=
+			return <artifact, boolean(false)>;
 		}else 
 			artifact.graphs[name].path = newPath;
 	}
-	return artifact;
+
+	return <artifact, boolean(true)>;
 }
 
+			//if(resolvable){
+			//	HistoryEntry newEntry = entry(
+			//								artifact.output,
+			//								[],
+			//								intersection,
+			//								"Repair",
+			//								"Path");
+			//	printSM("Trying to fix path...");
+			//	for(c <- intersection){
+			//		artifact.output = changeTile("f", c, artifact.output);
+			//	}
+			//	newEntry.after = artifact.output;
+			//	artifact.history += [newEntry];
+			//}else{
+			//	printSM("Constraint non resolvable exiting.");
+			//	artifact.errors += [constraintNotMet(name)];
+			//}
+			//
 
 
 

@@ -6,7 +6,6 @@ import String;
 
 import parsing::AST;
 import parsing::DataStructures;
-import errors::Parsing;
 import parsing::ConvertAst;
 import parsing::Syntax;
 
@@ -16,8 +15,11 @@ import execution::DataStructures;
 import util::Math;
 import utility::TileMap;
 
+import errors::Parsing;
+import errors::Execution;
+
 public void parseProject(Tree tree, loc projectFile){
-	println("Parse is called on: <projectFile>");
+	//println("Parse is called on: <projectFile>");
     AbstractPipeline project = implodePipeline(tree);
 }
 	
@@ -43,9 +45,11 @@ public ExecutionArtifact executeProjectAndCheck(TransformationArtifact artifact)
 	ExecutionArtifact newArtifact = executeProject(artifact.project);
 	
 	if(newArtifact.errors != []){
-		println("There were errors found while executing the project");
+		printSM("There were errors found while executing the project");
+		for (ExecutionError error <- newArtifact.errors)
+			println(errorToString(error));
 	}
-	println("Done Executing");
+	printSM("Done Executing");
 	return newArtifact;
 }  
 
@@ -57,7 +61,7 @@ public TransformationArtifact parseProjectFromLoc(loc projectFile){
 
 public void runProject(Tree tree, loc projectFile){
 	TransformationArtifact artifact = parseAndCheck(tree);
-	println("System Message: Parsed and checked");
+	printSM("Parsed and checked");
 	
 	if(artifact.errors != []) return;
 	
@@ -65,7 +69,9 @@ public void runProject(Tree tree, loc projectFile){
 	ExecutionArtifact newArtifact = executeProject(artifact.project);
 	
 	if(newArtifact.errors != []){
-		println("There were errors found while executing the project");
+		printSM("There were errors found while executing the project");
+		for (ExecutionError error <- newArtifact.errors)
+			println(errorToString(error));
 	}else{
 		println("~~~~~~~~~Output~~~~~~~~~");
 		printTileMap(newArtifact.output);

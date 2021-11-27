@@ -31,7 +31,7 @@ lexical FLOAT
     
 
 lexical ConstraintKeywords 
-	= @categoty = "ConstraintKeywords"	"on exit" | "resolvable";
+	= @categoty = "ConstraintKeywords"	"on exit" | "resolvable" | "Exists" | "Count" | "Intact" ;
 	
 keyword Keywords = 'module' | 'recipe' | 'alphabet' | 'constraint' | 'options' | 'pipeline' | 'seed';
 
@@ -40,6 +40,7 @@ start syntax Pipeline
 		Alphabet alphabet
 	 	Options options 
 	 	Module+ modules
+	 	Constraint+ constraints
 	 "}";
 
 syntax Alphabet
@@ -60,24 +61,24 @@ syntax Options
 	"tiletype:" CHAR tiletype ";"
 	"}"
 	;
+	//("crossableTiles:" {CHAR t ","}+ )?
 
 syntax Module
     = modul: "module"  NAME name "{"
-	Rules rules
- 	Recipe recipe
- 	Constraint+ constraints
+		Rules rules
+	 	Recipe recipe
+	 	Constraint* constraints
 	"}"
 	;
 
 syntax Rules
 	= rules: "rules" "{" 
-	Rule+ rules
+	Rule* rules
 	"}"
 	;
 
 syntax Rule
-	= rule: 
-		NAME name ":" 
+	= rule: NAME name ":" 
 		Pattern leftHand "-\>" Pattern rightHand ";"
 	;
 
@@ -90,20 +91,33 @@ syntax Recipe
     Call+ calls 
     "}"
 	;
-	
+
+//This can be greatly simplified however everything i tried is failing	
 syntax Call
-   	= rulename: NAME ruleName ";"
-   	| createGraph: NAME graphname "=" CreateGraph graph ";"
+   	= call: NAME ruleName ";" 
+   	| assignCall: NAME varname "=" NAME ruleName ";"
+   	| appendCall: NAME varname "+="  NAME ruleName  ";" 
+   	
+   	| callM: NAME ruleName "[" CallModifier modifier ("\>" CallModifier modifier)* "]" ";" 
+   	| assignCallM: NAME varname "=" NAME ruleName "[" CallModifier modifier ("\>" CallModifier modifier)* "]" ";"
+   	| appendCallM: NAME varname "+="  NAME ruleName "[" CallModifier modifier ("\>" CallModifier modifier)* "]" ";" 
+   	
+   	| createPath: NAME varname "=" "CreatePath" "("  NAME a "," NAME b ")" ";" 
+   	| activateConstraint: "activate" "(" NAME constraintName ")" ";"
 	;
    	  
-syntax CreateGraph
-    = createPath: "CreatePath" "(" CHAR "," CHAR ")";
-
+syntax CallModifier
+	= incl: "in" NAME varname 
+	| nextTo: "nextTo" NAME varname 
+	| notNextTo: "notNextTo" NAME varname 
+	;
+	
 syntax Constraint
     = constraint: 
     ConstraintType typ "constraint" 
     NAME constraint_name ":"  
-    Expression ";";
+    Expression exp ";"
+    | empty: ";";
     
 syntax ConstraintType
 	= onexit: "on exit"
@@ -113,6 +127,8 @@ syntax ConstraintType
 
 syntax Expression
 	= e_val: Value val
+	| func: FunctionType ft "(" NAME varName  ")"
+	| incl: NAME var1 "in" NAME var2
 	| o_par: "(" Expression exp ")"
 	| e_not: "!" Expression exp
 	> left
@@ -124,11 +140,17 @@ syntax Expression
 	  | e_eq: Expression lhs "==" Expression rhs
 	  )
 	;
+
+syntax FunctionType
+	= count: "Count"
+	| exists: "Exists"
+	| intact: "Intact"
+	;
+
 syntax Value
 	= integer: INTEGER integer
 	| boolean: BOOLEAN boolean
-	| char: CHAR char
-	| path: "path"
+	| varName: NAME name 
 	;
 	
 //////////////////////////////////////////////////	

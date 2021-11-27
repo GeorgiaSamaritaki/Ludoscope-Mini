@@ -21,13 +21,25 @@ import errors::Parsing;
 import parsing::Parser;
 import parsing::DataStructures;
 import parsing::Syntax;
-import errors::Parsing;
 
+/* Error libraries */
+import errors::Execution;
+import errors::Parsing;
+import errors::Visual;
+
+/* Utility */
+import utility::TileMap;
 /* Execution */
 import execution::Execution;
 import execution::DataStructures;
 
 alias SymbolMap = list[list[AlphabetEntry]];
+
+//I apologize this isnt split in several files. The reason is that salix just doesnt see
+// other files.
+public void printVM(str systemmessage){
+	println("Visual ide Message: <systemmessage>");
+}
 
 alias Model = 
 	tuple[
@@ -108,7 +120,7 @@ void drawSymbolMap(SymbolMap symbolMap, int svgWidth, int svgHeight){
 	if(tileHeight < tileWidth) tileWidth = tileHeight;
 	svgWidth = tileWidth * size(symbolMap[0]);
 	
-	//println("svgw <svgWidth> svgHeight <svgHeight> tile width <tileWidth>");
+	//printVM("svgw <svgWidth> svgHeight <svgHeight> tile width <tileWidth>");
 	
 	svg(height("<svgHeight>px"), width("<svgWidth>px"), () {		
 		for (int row <- [0 .. size(symbolMap)]){
@@ -142,7 +154,7 @@ void drawRule(AlphabetMap alphabet, LudoscopeRule rule, str ruleName){
 	int svgWidth = 100;
 	int svgHeight = calculateSvgHeight(svgWidth, size(rule.lhs));
 	
-	//println("For rule <ruleName> svgHeight <svgWidth>");
+	//printVM("For rule <ruleName> svgHeight <svgWidth>");
 	
 	div(class("row"),() {
 		h4("<ruleName>");
@@ -163,7 +175,6 @@ void drawRule(AlphabetMap alphabet, LudoscopeRule rule, str ruleName){
 }
 
 void viewGrammar(Model model){
-	println("view Grammar");
 	AlphabetMap alphabet = 
 		model.projectViewInfo.transformationArtifact.project.alphabet;
 
@@ -192,8 +203,8 @@ void viewPipeline(Model model){
 		
 		graph += {<"<\module.name>", "<higherModule.name>">};
 	}
-	 println("graph <graph> <size(model.projectViewInfo.transformationArtifact.project.modules)>");
-	dagre("pipeline", rankdir("LR"), width(500), height(500), marginx(100), marginy(100), (N n, E e) {
+	 //printVM("graph <graph> <size(model.projectViewInfo.transformationArtifact.project.modules)>");
+	dagre("pipeline", rankdir("LR"), (N n, E e) {
 	    for (str x <- graph<0> + graph<1>) {
 	      n(x, shape("circle"), () {
 	      	div(() {
@@ -219,6 +230,20 @@ void viewParsingErrors (list[ParsingError] errors){
 		});
 		ul((){
 			for(ParsingError error <- errors){
+				li(errorToString(error));
+			}
+		});
+	});
+}
+
+void viewExecutionErrors (list[ExecutionError] errors){
+	div(class("danger"), (){
+		p((){
+			text("Execution errors");			
+			
+		});
+		ul((){
+			for(error <- errors){
 				li(errorToString(error));
 			}
 		});
@@ -269,10 +294,6 @@ void viewHistory(Model model)
 				th(scope("col"), class("text-center"), () {
 					text("Module");
 				});
-				// TODO: add instruction back.
-				//th(scope("col"), class("text-center"), () {
-				//	text("Instruction");
-				//});
 				th(scope("col"), class("text-center"), () {
 					text("Rule");
 				});
@@ -293,10 +314,6 @@ void viewHistory(Model model)
 						th(scope("row"), () {
 							text(step.moduleName);
 						});
-						// TODO: add instruction back.
-						//th(scope("row"), () {
-						//	text(step.instruction);
-						//});
 						th(scope("row"), () {
 							text(step.ruleName);
 						});
@@ -310,10 +327,12 @@ void viewHistory(Model model)
 void viewExecution(model){
 	if (model.executionViewInfo.executionArtifact == emptyExecutionArtifact()){
 		h3("The project stil contains parsing errors..");
+		return;
 	}else if(model.executionViewInfo.executionArtifact.errors != []){
-	  	h3("The project contains execution errors..");
-	}else{
-		println("view ex");
+	  	//h3("The project contains execution errors..");
+	  	viewExecutionErrors(model.executionViewInfo.executionArtifact.errors);
+		
+	}
 		ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
 		
 		div(class("container"), () {
@@ -353,7 +372,7 @@ void viewExecution(model){
 				
 			});
 		});
-	}
+	
 }
 public void view(Model model) {
   div(() {
@@ -363,7 +382,7 @@ public void view(Model model) {
     	case projectView(): viewProject(model);
     	case executionView(): viewExecution(model);
     	//case bugReportView(): viewBugReport(model);
-    	default: println("view went to default");
+    	default: printVM("view went to default");
     }
 
 
@@ -406,7 +425,7 @@ Model init() {
 			//,			bugReportViewInfo
 		>;
 	newModel = tryAndParse(newModel);
-	println("Parsed!");
+	printVM("Parsed!");
 	return newModel;
 }
 
@@ -439,7 +458,7 @@ private list[str] mySplit(str sep, str s) {
 
 private str updateSrc(str src, int fromLine, int fromCol, int toLine, int toCol, str text, str removed) {
   // NOTE: Added this for microsoft line breaks.
-  println("updateSrc Called");
+  printVM("updateSrc Called");
   src = replaceAll(src, "\r\n", "\n");
   list[str] lines = mySplit("\n", src);
 
@@ -453,7 +472,6 @@ private str updateSrc(str src, int fromLine, int fromCol, int toLine, int toCol,
 }
 
 Model update(Msg msg, Model model) {
- println("update Called msg <msg>");
   switch (msg) {
   	case goHome(): {
   		model.view = projectView();
@@ -462,22 +480,23 @@ Model update(Msg msg, Model model) {
   		model.view = newView;
   	}
   	case executeProject():{
-  	println("trying to execute");
+  	printVM("trying to execute");
   		model.executionViewInfo.executionArtifact = executeProjectAndCheck(model.projectViewInfo.transformationArtifact);
   		model.view = executionView();
-  		println("Executed project");
+  		printVM("Executed project");
   	}
     case cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed):{
       	model.projectViewInfo.src = updateSrc(model.projectViewInfo.src, fromLine, fromCol, toLine, toCol, text, removed);
-    	println("updating source \n <model.projectViewInfo.src>");
+    	printVM("updating source \n <model.projectViewInfo.src>");
 	}
     case selectedFile(str file):{
+		printVM("Changed file to <file>");
     	model = selectFile(model, file);
     	model.view = projectView();
     }
     case saveChanges():{
     	loc file = projectsFolder + model.projectViewInfo.selectedFile;
-    	writeFile(file, model.projectViewInfo.src);
+    	//writeFile(file, model.projectViewInfo.src);
     	model = tryAndParse(model);
     	
     }
@@ -489,11 +508,11 @@ Model update(Msg msg, Model model) {
 }
 
 Model tryAndParse(Model model){
-	println("tryAndParse Called");
+	printVM("tryAndParse Calledd");
   	str file =  model.projectViewInfo.selectedFile;
 	loc projectFile = projectsFolder + file;
 	model.projectViewInfo.transformationArtifact = parseProjectFromLoc(projectFile);
-
+	printVM("Finished!");
 	return model;
 }
 

@@ -24,7 +24,6 @@ anno loc Rule@location;
 anno loc Pattern@location;
 anno loc Recipe@location;
 anno loc Call@location;
-anno loc CreateGraph@location;
 anno loc Expression@location;
 anno loc ConstraintType@location;
 
@@ -38,7 +37,9 @@ data Pipeline
  	= pipeline(
  	Alphabet alphabet,
  	Options options,
- 	list[Module] modules);
+ 	list[Module] modules,
+ 	list[Constraint] constraints
+ 	);
  
 data Alphabet
 	= alphabet(
@@ -55,7 +56,8 @@ data Options
 		int height,
 		int width,
 		str tiletype
-	);
+	)
+	| undefined();
 
 data Module 
  	= modul(
@@ -82,21 +84,32 @@ data Recipe
  	= recipe(list[Call] calls);
  
 data Call
-	= rulename(str name)
-	| createGraph(str graphname, CreateGraph graph) 
+	= call(str ruleName)
+	| assignCall(str varname, str ruleName)
+	| appendCall(str varname, str ruleName)
+	| callM(str ruleName, CallModifier m, list[CallModifier] modifiers)
+	| assignCallM(str varname, str ruleName, CallModifier modifier)
+	| appendCallM(str varname, str ruleName, CallModifier modifier)
+   	| createPath(str varname, str a, str b)
+   	| activateConstraint(str constraintName)
 	;
 
-data CreateGraph
-	= createPath(str a, str b)
+data CallModifier
+	= incl(str varname)
+	| nextTo(str varname)
+	| notNextTo(str varname)
 	;
 	
 data Constraint 
  	= constraint(ConstraintType typ,
- 	Name name, 
- 	Expression exp); //maybe make it boolean?
+ 	str name, 
+ 	Expression exp)
+ 	| empty(); 
 
 data Expression
 	= e_val(Value val)
+	| func(FunctionType ft, Name varName)
+	| incl(str var1, str var2) 
 	| o_par(Expression exp)
 	| e_not(Expression exp)
 	| e_lt(Expression lhs, Expression rhs)
@@ -105,6 +118,12 @@ data Expression
 	| e_ge(Expression lhs, Expression rhs)
 	| e_neq(Expression lhs, Expression rhs)
 	| e_eq(Expression lhs, Expression rhs);
+
+data FunctionType
+	= count()
+	| exists()
+	| intact()
+	;
 
 data ConstraintType
 	= onexit() 
@@ -115,8 +134,8 @@ data ConstraintType
 data Value
  	= integer(int integer)
  	| boolean(bool boolean)
- 	| char(str char)
- 	| path() ;
+	| varName(Name name)
+	;
 	
 data Name 
  	= name(str val);
