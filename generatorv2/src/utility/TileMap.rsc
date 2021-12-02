@@ -11,6 +11,7 @@ alias TileMap = list[list[Tile]];
 alias Tile = str;
 alias Coordinates = tuple[int x, int y];
 
+str undefined = "?";
 
 public list[list[str]] createTileMap(int width, int height, str symbol){
 	return [[symbol | int i <- [0 .. width]] | int j <- [0 .. height]];
@@ -185,6 +186,7 @@ public tuple[Coordinates, TileMap] extractSection(
 	Coordinates startingPoint = min(affectedArea);
 	int height = max(affectedArea).x - startingPoint.x + 1;
 	int width = max(affectedArea).y - startingPoint.y + 1;
+	
 	return <startingPoint, getSubMap(startingPoint, <height,width>, \map)>;
 }
 
@@ -196,10 +198,15 @@ public tuple[Coordinates, TileMap] getAreaAround(
 	set[Coordinates] allCoords = 
 		union( {getAllAround(c, ruleSize) | c<-affectedArea });
 	
-	return translateCoordinatesToTilemap(
-				allCoords - fillInCoordinates(affectedArea), \map);
+	return translateCoordinatesToTilemap(allCoords, \map);
 }
 
+public set[Coordinates] substractOffset(
+	set[Coordinates] coords, 
+	Coordinates offset){
+	return { <c.x - offset.x, c.y - offset.y> | 
+			c <- coords, c.x - offset.x >= 0 && c.y - offset.y >= 0};
+}
 
 public TileMap getAllButAreaAround(
 	TileMap \map,
@@ -214,7 +221,9 @@ public TileMap getAllButAreaAround(
 private TileMap removeCoordinatesFromTileMap(
 	TileMap \map, 
 	set[Coordinates] coords){
-	for(c <- coords) \map[c.x][c.y] = "undefined";
+	for(c <- coords) 
+		if(c.x < size(\map) && c.y < size(\map[0]))
+			\map[c.x][c.y] = undefined;
 	return \map;
 }
 
@@ -232,21 +241,21 @@ public set[Coordinates] getAllAround(
 public tuple[Coordinates, TileMap] translateCoordinatesToTilemap(
 	set[Coordinates] coords, 
 	TileMap \map){
+	
 	if(isEmpty(coords)) return <<-1,-1>,\map>;
 	
 	Coordinates startingPoint = min(coords);
 	int height = getMaxX(coords) - startingPoint.x + 1;
 	int width = getMaxY(coords) - startingPoint.y + 1;
 	
-	TileMap newMap = createTileMap(width, height, "undefined");
+	TileMap newMap = createTileMap(width, height, undefined);
 	
 	for(c <- coords){
 	  if(c.x >= size(\map) || c.y >= size(\map[0])
 	  	|| c.x < 0 || c.y < 0){ 
 		printError("Got coords out of the map");
-		break;
-	  }
-	  newMap[c.x - startingPoint.x][c.y - startingPoint.y] = \map[c.x][c.y];
+	  }else 
+		  newMap[c.x - startingPoint.x][c.y - startingPoint.y] = \map[c.x][c.y];
 	}
 	return <startingPoint, newMap>;
 }

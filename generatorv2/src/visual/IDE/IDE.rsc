@@ -78,7 +78,7 @@ public void viewHeader(Model model) {
 	header(() {
 		nav(class("navbar navbar-inverse navbar-static-top"), () {
 			a(class("navbar-brand"), onClick(goHome()), href("#"), () {
-				text("AMG");
+				text("Ludoscope Mini");
 			});
 			ul(class("nav navbar-nav"), () {
 				li(class("dropdown"), () {
@@ -127,13 +127,13 @@ void drawSymbolMap(SymbolMap symbolMap, int svgWidth, int svgHeight){
 			for (int column <- [0 .. size(symbolMap[0])]){
 				AlphabetEntry symbol = symbolMap[row][column];
 				rect(
-				 	style("x:<column * tileWidth>; 
+				 	style("x:<column * tileWidth - column>; 
 				 		   y:<row * tileWidth>; "),
-				 	width("<tileWidth - 1>"), 
-				 	height("<tileWidth - 1>"),
+				 	width("<tileWidth>"), 
+				 	height("<tileWidth>"),
 				 	fill(symbol.color), 
 				 	stroke("black"), 
-				 	strokeWidth("0.5")
+				 	strokeWidth("1")
 				 	);
 				 	//onMouseOver(changeFocus(<column, row>)));
 			}
@@ -328,23 +328,24 @@ void viewExecution(model){
 	if (model.executionViewInfo.executionArtifact == emptyExecutionArtifact()){
 		h3("The project stil contains parsing errors..");
 		return;
-	}else if(model.executionViewInfo.executionArtifact.errors != []){
-	  	//h3("The project contains execution errors..");
+	} 
+	
+	if(model.executionViewInfo.executionArtifact.errors != []){
 	  	viewExecutionErrors(model.executionViewInfo.executionArtifact.errors);
-		
 	}
-		ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
-		
-		div(class("container"), () {
-			div(class("row"), () {
-				/* History */
-				viewHistory(model);
-				/* Visual */
-				div(class("col-md-6"), () {
+	
+	div(class("container"), () {
+		div(class("row"), () {
+			/* History */
+			viewHistory(model);
+			/* Visual */
+			div(class("col-md-6"), () {
+				ExecutionHistory history = model.executionViewInfo.executionArtifact.history;
+				
+				if(model.executionViewInfo.currentStep >= 0){
 					HistoryEntry step = history[model.executionViewInfo.currentStep];
 				
 					LudoscopeProject project = model.projectViewInfo.transformationArtifact.project;
-	
 					AlphabetMap alphabet = project.alphabet;
 					
 					TileMap tileMap = step.before;	
@@ -366,12 +367,13 @@ void viewExecution(model){
 							drawSymbolMap(symbolMap, svgWidth, svgHeight);
 						});
 					});
-					hr();
-					
-				});
+				}
+				hr();
 				
 			});
+			
 		});
+	});
 	
 }
 public void view(Model model) {
@@ -482,8 +484,9 @@ Model update(Msg msg, Model model) {
   	case executeProject():{
   	printVM("trying to execute");
   		model.executionViewInfo.executionArtifact = executeProjectAndCheck(model.projectViewInfo.transformationArtifact);
+  		model.executionViewInfo.currentStep =  size(model.executionViewInfo.executionArtifact.history) -1;
   		model.view = executionView();
-  		printVM("Executed project");
+  		printVM("Executed project <size(model.executionViewInfo.executionArtifact.history)>");
   	}
     case cmChange(int fromLine, int fromCol, int toLine, int toCol, str text, str removed):{
       	model.projectViewInfo.src = updateSrc(model.projectViewInfo.src, fromLine, fromCol, toLine, toCol, text, removed);

@@ -24,20 +24,24 @@ public ExecutionArtifact executeProject(LudoscopeProject project){
 	artifact.currentState = currentState;
 	
 	for (LudoscopeModule \module <- project.modules){
+	    printError("Executing module <\module.name>");
+	    
+		//Saving current state to make the variable with the module's name
 		TileMap input = artifact.currentState;
 	
 		artifact = executeModule(artifact, \module);
 	    
 	    checkExitConstraints(artifact, \module.constraints);
-	    
 	    //Create the variable for module
 	    TileMap output = artifact.currentState;
-	    
-	    artifact.variables[\module.name] = tilemapDifference(input,output);
-	    
+
+		//Add changes to history	    
 	    allHistory += artifact.history;
 	    artifact.history = [];
+	    
 	    if(artifact.errors != []) break;
+
+	    artifact.variables[\module.name] = tilemapDifference(input, output);	    
 	}
 
 	artifact.history = allHistory;

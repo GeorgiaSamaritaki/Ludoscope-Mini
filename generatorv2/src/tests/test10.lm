@@ -1,0 +1,53 @@
+pipeline {
+  alphabet {
+  	dirt d #996633; 
+	boulder b #B3B3B3; 
+  	entrance e #80FF80;
+	exit  x #FF0000;
+	wall w #4D4D4D;
+	grass g #33FF00;
+	treasure t #FFD700;
+   }
+	options {
+		seed: 12;
+		size: 10x10;
+		tiletype: d; 
+	}
+	
+	module first {
+		rules {
+		  addWalls:
+			ddddddd,
+			ddddddd,
+			ddddddd,
+			ddddddd,
+			ddddddd
+			->
+			wwwwwww,
+			wdddddw,
+			wdddddw,
+			wdddddw,
+			wwwwwww;
+			addEntrance: 
+			w,
+			d 
+			->  
+			e,
+			d;
+			addExit: 
+			dw 
+			->  
+			dx;
+			addGrass: 
+			d -> g;
+			addTreasure: 
+			d -> t;
+  		}
+		recipe {
+		  	room = addWalls; 
+			addTreasure[notIn room];
+		}
+		;
+	}
+	;
+}

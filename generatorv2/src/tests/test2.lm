@@ -1,34 +1,27 @@
 pipeline {
-	
 	alphabet {
-		floor f #907558; 
-		wall * #A9A9A9;
-		entrance  e #00FF00;
-		exit  x #FF0000;
-		pillar | #964B00;
+		dirt d #996633; 
+		grass g #33FF00;
 	}	
-	
 	options {
 		seed: 12;
 		size: 5x5;
-		tiletype: f;
+		tiletype: d;
 	}
-	
 	module firstModule {
 		rules {
-			addPillar:
-			f
+			addGrass:
+			d
 			-> 
-			|;
-			
+			g;
+			removeGrass:
+			g -> d;
 		}
-		
 		recipe {
-			addPillar;
+			removeGrass;
 		}
-		
-		on exit constraint a: True;
+		;
 	}
-	on exit constraint a: True;	
+	;
 }
 

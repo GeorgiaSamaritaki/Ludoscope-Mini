@@ -88,14 +88,15 @@ data Call
 	| assignCall(str varname, str ruleName)
 	| appendCall(str varname, str ruleName)
 	| callM(str ruleName, CallModifier m, list[CallModifier] modifiers)
-	| assignCallM(str varname, str ruleName, CallModifier modifier)
-	| appendCallM(str varname, str ruleName, CallModifier modifier)
+	| assignCallM(str varname, str ruleName, CallModifier m, list[CallModifier] modifiers)
+	| appendCallM(str varname, str ruleName, CallModifier m, list[CallModifier] modifiers)
    	| createPath(str varname, str a, str b)
    	| activateConstraint(str constraintName)
 	;
 
 data CallModifier
 	= incl(str varname)
+	| notIn(str varname)
 	| nextTo(str varname)
 	| notNextTo(str varname)
 	;

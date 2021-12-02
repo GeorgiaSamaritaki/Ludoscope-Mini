@@ -40,7 +40,7 @@ start syntax Pipeline
 		Alphabet alphabet
 	 	Options options 
 	 	Module+ modules
-	 	Constraint+ constraints
+	 	Constraint* constraints
 	 "}";
 
 syntax Alphabet
@@ -88,7 +88,7 @@ syntax Pattern
 	
 syntax Recipe
     = recipe: "recipe" "{" 
-    Call+ calls 
+    Call* calls 
     "}"
 	;
 
@@ -108,6 +108,7 @@ syntax Call
    	  
 syntax CallModifier
 	= incl: "in" NAME varname 
+	| notIn: "notIn" NAME varname 
 	| nextTo: "nextTo" NAME varname 
 	| notNextTo: "notNextTo" NAME varname 
 	;

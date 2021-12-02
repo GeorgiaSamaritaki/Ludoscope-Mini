@@ -20,9 +20,9 @@ data ParsingError
 str errorToString(parsing(loc fileLocation))
 {
 	return "Parsing error:
-		Loc: <fileLocation>
-		File: <fileLocation.path>
-		Line: <fileLocation.begin.line>";
+		\n Loc: <fileLocation>
+		\n File: <fileLocation.path>
+		\n Line: <fileLocation.end.line>";
 }
 
 str errorToString(ambiguity(loc fileLocation, str usedSyntax))
@@ -31,7 +31,7 @@ str errorToString(ambiguity(loc fileLocation, str usedSyntax))
 		Syntax: <usedSyntax>
 		Loc: <fileLocation>
 		File: <fileLocation.path>
-		Line: <fileLocation.begin.line>";
+		Line: <fileLocation.end.line>";
 }
 
 str errorToString(imploding(loc fileLocation))
@@ -84,7 +84,7 @@ str errorToString(mapSize(int size, int symbols, loc fileLocation))
 		the amount of symbols that follow (<symbols>).
 		Loc: <fileLocation>
 		File: <fileLocation.path>
-		Line: <fileLocation.begin.line>";
+		Line: <fileLocation.end.line>";
 }
 
 str errorToString(rightAndLeftHandSize(int leftWidth, int leftHeight, 
@@ -92,9 +92,9 @@ str errorToString(rightAndLeftHandSize(int leftWidth, int leftHeight,
 {
 	return "Error: the dimensions of the left hand (<leftWidth>, <leftHeight>) 
 	do not match with	the dimensions of the right hand (<rightWidth>, <rightHeight>).
-		Loc: <fileLocation>
-		File: <fileLocation.path>
-		Line: <fileLocation.begin.line>";
+		\n Loc: <fileLocation>
+		\n File: <fileLocation.path>
+		\n Line: <fileLocation.end.line>";
 }
 
 str errorToString(propertyName(str propertyName, loc fileLocation))

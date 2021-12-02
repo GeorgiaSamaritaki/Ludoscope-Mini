@@ -68,7 +68,7 @@ public ExecutionArtifact executeCall(
 public ExecutionArtifact executeCall(
 	ExecutionArtifact artifact, 
 	LudoscopeModule \module, 
-	a:assignCallM(str varname, CallModifier m, list[CallModifier] modifiers)
+	a:assignCallM(str varname, str ruleName, CallModifier m, list[CallModifier] modifiers)
 ){
 	TileMap modifiedArea = [];
 	Coordinates offset = <0,0>;
@@ -126,7 +126,6 @@ private ExecutionArtifact call(
 	str varname,
 	bool toAssign
 ){
-	printError("called rule <rulename>");
 	LudoscopeRule rule = \module.rules[rulename];
 	
 	//Find if the pattern matches
@@ -141,15 +140,17 @@ private ExecutionArtifact call(
 	
 	//Transform the tilemap
 	Coordinates match = getOneFrom(matches); //defined by the arbSeed function
-	artifact.output = replacePattern(artifact.currentState, rule.rhs, 
-									<match.x + offset.x, match.y + offset.y>);
+	match.x += offset.x; 
+	match.y += offset.y;
+	
+	//printError("Match <match>: with offset <match.x + offset.x>, <match.y + offset.y>");
+	artifact.output = replacePattern(artifact.currentState, rule.rhs, match);
 	
 	//If it was added to a variable
 	if(varname != ""){
-		set[Coordinates] changes = getAllCoordinates(match, patternSize(rule.lhs));
+		set[Coordinates] changes = tilemapDifference(artifact.currentState, artifact.output);
 		//Simple assignment 
 		if(toAssign){
-			printError("Adding variable <varname>: <artifact.variables>");
 			artifact.variables[varname] = changes;
 		}else{ //appendCall
 			if(varname in artifact.variables) //if it exists expand the var
@@ -236,7 +237,7 @@ private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifiers(
 	
 	for(m <- modifiers){
 	  <artifact, modifiedOutput, tmpOffset> 
-		= applyModifierToMap(artifact, artifact.currentState, 
+		= applyModifierToMap(artifact, <modifiedOutput, totalOffset>, 
 							callLoc, ruleSize, m);
 	  
 	  totalOffset.x += tmpOffset.x;
@@ -245,47 +246,23 @@ private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifiers(
 	return <artifact, modifiedOutput, totalOffset>;
 }
 
-private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifier(
-	ExecutionArtifact artifact,
-	loc callLoc,
-	CallModifier m
-){
-	return applyModifierToMap(artifact, artifact.currentState, callLoc, <0,0>,  m);
-}
-
 private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifierToMap(
 	ExecutionArtifact artifact,
-	TileMap \map,
+	<TileMap \map, Coordinates offset>,
 	loc callLoc,
 	tuple[int height, int width] ruleSize,
 	incl(str varname)
 ){
 	TileMap modifiedArea = [];
 	Coordinates locOnMap = <0,0>;
-	printError("Vars: <artifact.variables>, <varname in artifact.variables> ");
+	
 	if(varname in artifact.variables){ 
 		set[Coordinates] affectedArea = artifact.variables[varname];
+		
+		// Normalise based on the current offset
+		affectedArea = substractOffset(affectedArea, offset);
+		
 		<locOnMap, modifiedArea> = extractSection(\map, affectedArea);
-	}else {
-		printError("Variable |<varname>| doesnt exist");
-		artifact.errors += [variableDoesntExist(varname, callLoc)];
-	}  	
-	return <artifact, modifiedArea, locOnMap>;
-}
-
-private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifierToMap(
-	ExecutionArtifact artifact,
-	TileMap \map,
-	loc callLoc,
-	tuple[int height, int width] ruleSize,
-	nextTo(str varname)
-){
-	TileMap modifiedArea = [];
-	Coordinates locOnMap = <0,0>;
-	if(varname in artifact.variables){ 
-		set[Coordinates] affectedArea = artifact.variables[varname];
-		<locOnMap, modifiedArea> = 
-			getAreaAround(\map, affectedArea, ruleSize);
 	
 	}else {
 		printError("Variable |<varname>| doesnt exist");
@@ -296,15 +273,80 @@ private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifierToMap(
 
 private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifierToMap(
 	ExecutionArtifact artifact,
-	TileMap \map,
+	<TileMap \map, Coordinates offset>,
 	loc callLoc,
 	tuple[int height, int width] ruleSize,
-	notNextTo(str varname)
+	notIn(str varname)
+){
+	TileMap modifiedArea = [];
+	Coordinates locOnMap = <0,0>;
+	
+	if(varname in artifact.variables){ 
+		set[Coordinates] affectedArea = artifact.variables[varname];
+		set[Coordinates] toSubstract = {};
+
+		if(varname in artifact.graphs)
+			toSubstract = toSet(artifact.graphs[varname].path);
+		else if(varname in artifact.variables)
+			toSubstract = artifact.variables[varname];
+		else{
+			printError("Variable |<varname>| doesnt exist");
+			artifact.errors += [variableDoesntExist(varname, callLoc)];
+			return <artifact, modifiedArea, <0,0>>;
+		} 
+		println("area to substract <toSubstract>");
+		
+		// Normalise based on the current offset
+		affectedArea = substractOffset(affectedArea - toSubstract, offset);
+		//
+		<locOnMap, modifiedArea> =
+			translateCoordinatesToTilemap(affectedArea, \map);
+	}else {
+		printError("Variable |<varname>| doesnt exist");
+		artifact.errors += [variableDoesntExist(varname, callLoc)];
+	}  	
+	return <artifact, modifiedArea, locOnMap>;
+}
+
+private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifierToMap(
+	ExecutionArtifact artifact,
+	<TileMap \map, Coordinates offset>,
+	loc callLoc,
+	tuple[int height, int width] ruleSize,
+	nextTo(str varname)
 ){
 	TileMap modifiedArea = [];
 	Coordinates locOnMap = <0,0>;
 	if(varname in artifact.variables){ 
 		set[Coordinates] affectedArea = artifact.variables[varname];
+
+		// Normalise based on the current offset
+		affectedArea = substractOffset(affectedArea, offset);
+
+		<locOnMap, modifiedArea> = 
+			getAreaAround(\map, affectedArea, ruleSize);
+	}else {
+		printError("Variable |<varname>| doesnt exist");
+		artifact.errors += [variableDoesntExist(varname, callLoc)];
+	}  	
+	return <artifact, modifiedArea, locOnMap>;
+}
+
+private tuple[ExecutionArtifact, TileMap, Coordinates] applyModifierToMap(
+	ExecutionArtifact artifact,
+	<TileMap \map, Coordinates offset>,
+	loc callLoc,
+	tuple[int height, int width] ruleSize,
+	notNextTo(str varname)
+){
+	TileMap modifiedArea = [];
+
+	if(varname in artifact.variables){ 
+		set[Coordinates] affectedArea = artifact.variables[varname];
+		
+		// Normalise based on the current offset
+		affectedArea = substractOffset(affectedArea, offset);
+		
 		modifiedArea = getAllButAreaAround(\map, affectedArea);
 	
 	}else {
