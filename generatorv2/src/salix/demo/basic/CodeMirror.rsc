@@ -15,13 +15,13 @@ import IO;
 
 alias Model = tuple[list[Msg] changes, str src];
 
-SalixApp[str] cmApp(str id = "root") = makeApp(id, init, view, update, parser=parseMsg);
+SalixApp[Model] cmApp(str id = "root") = makeApp(id, init, view, update);
 
-App[str] cmWebApp()
+App[Model] cmWebApp()
   = webApp(
       cmApp(), 
-      |project://projectName/src/salix/demo/basic/index.html|, 
-      |project://projectName/src|
+      |project://generatorv2/src/salix/demo/basic/index.html|, 
+      |project://generatorv2/src|
     );
 
 
@@ -47,11 +47,12 @@ void view(Model model) {
     h2("Code Mirror demo");
     div(() {
       codeMirror("cm", style(("height": "auto")), onChange(myChange), 
-        mode("javascript"), lineNumbers(true), \value(model.src));
+         lineNumbers(true), \value(model.src));
     });
     for (Msg m <- model.changes) {
       text(m);
       text("; ");
+      println("text <m>;");
     }
   });
 }

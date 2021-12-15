@@ -1,3 +1,12 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This file containts the very primitive implementation of  
+//		    constraints
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module execution::Handlers
 
 import IO;
@@ -9,33 +18,91 @@ import errors::Execution;
 
 import parsing::DataStructures;
 import execution::DataStructures;
+import execution::Execution;
 import parsing::AST;
 
+import List;
+
 public ExecutionArtifact callHandler(str constraintName, ExecutionArtifact artifact){
-	switch(constraintName){
-		case /inner_path/: 
-				return pathCheck(constraintName, artifact);
-		default: 
-			artifact += [undefinedHandler(constraintName)];
+	if(constraintName notin artifact.handlers){
+		printError("No handler with name <constraintName>");
+	 	artifact.errors += [undefinedHandler(constraintName)];
+	 	return artifact;
 	}
+	list[HandlerCall] calls = artifact.handlers[constraintName];
+	
+	for(c <- calls) artifact = handlerCall(artifact, constraintName, c);
+	
+	//switch(constraintName){
+	//	case /inner_path/: 
+	//			return reExecuteLastModule(constraintName, artifact);
+	//	default: 
+	//		artifact += [undefinedHandler(constraintName)];
+	//}
 	return artifact;
 }
 
-//
-//This is called when the path is broken
-//
-private ExecutionArtifact pathCheck(str constraintName, ExecutionArtifact artifact){
-	artifact = clearPath("f", constraintName, artifact);
-	return artifact;
+private ExecutionArtifact handlerCall(
+	ExecutionArtifact artifact,
+	str constraintName,
+	clearPath(str tileType, str varName)
+){
+	return clearPath(tileType, varName, artifact);
 }
+
+private ExecutionArtifact handlerCall(
+	ExecutionArtifact artifact,
+	str constraintName,
+	reverseM()
+){
+	return reverseChangesByLastModule(constraintName, artifact);
+}
+
+private ExecutionArtifact handlerCall(
+	ExecutionArtifact artifact,
+	str constraintName,
+	executeM(str moduleName)
+){
+	LudoscopeModule m = getModule(moduleName);
+	return executeModuleNoConstraints(artifact,m);
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Helper
 //////////////////////////////////////////////////////////////////////////////////////////////
+private ExecutionArtifact reverseChangesByLastModule(
+	str cname, 
+	ExecutionArtifact artifact
+){
+	if(isEmpty(artifact.history)) return artifact;
+	
+	str moduleName = last(artifact.history).moduleName;
+	TileMap before = artifact.currentState;
+	
+	for(e <- artifact.history, e.moduleName == moduleName){ 
+		artifact.currentState = e.before;
+		break;
+	}
+	
+	artifact.history += [ entry(
+		before,
+		artifact.currentState,
+		 tilemapDifference(before, artifact.currentState), //every tile affected
+		"System", 
+		"Handler for <cname>")];
+	return artifact;
+}
 
-private ExecutionArtifact clearPath(str convertTile, str constraintName, ExecutionArtifact artifact){
+private ExecutionArtifact clearPath(str convertTile, str varName, ExecutionArtifact artifact){
 	HistoryEntry lastEntry = last(artifact.history);
-	Path p = artifact.graphs[constraintName];
+	
+	if(varName notin artifact.graphs){
+	 	artifact += [undefinedVariable(varName)];
+	 	return artifact;
+	}
+	Path p = artifact.graphs[varName];
 	list[Coordinates] intersection = lastEntry.coordinates & p.path;
 	
 	HistoryEntry newEntry = entry(

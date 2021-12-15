@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This file containts the data structures utilised  
+//		    during execution
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// 			(inspired by Ludoscope Lite from Quinten Heijn)
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module execution::DataStructures
 
 import parsing::DataStructures;
@@ -15,6 +25,7 @@ data ExecutionArtifact =
 		TileMap currentState,
 		PathMap graphs,
 		VariableMap variables,
+		HandlerMap handlers,
 		ExecutionHistory history,
 		list[ExecutionError] errors)
 	| emptyExecutionArtifact();
@@ -37,7 +48,7 @@ data HistoryEntry =
 		str ruleName);
 
 public ExecutionArtifact getEmptyExecutionArtifact() =
-	executionArtifact([], [], (), (), [], []);
+	executionArtifact([], [], (), (), (), [], []);
 
 public str printHistrory(ExecutionArtifact artifact){
 	str s= "";

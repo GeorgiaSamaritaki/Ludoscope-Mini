@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This function contains the functions that are called to parse
+//			and execute. They are used both from the main and from the IDE.
+//			They also display the errors.
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module parsing::Parser
 
 import IO;

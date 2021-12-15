@@ -1,3 +1,12 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This file contains all the functions all around TileMapToSymbolMap
+//			These functions are used throughout execution		
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module utility::TileMap
 
 import IO;
@@ -65,19 +74,15 @@ public set[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
 		int widthOffset = size(A);
 		int heightOffset = size(C);
 		bool match = true;
-		if (heightOffset + patternHeight <= gridHeight)
-		{
-			for (int row <- [heightOffset + 1 .. heightOffset + patternHeight])
-			{
+		if (heightOffset + patternHeight <= gridHeight){
+			for (int row <- [heightOffset + 1 .. heightOffset + patternHeight]){
 				if (pattern[row - heightOffset] != 
-					grid[row][widthOffset .. widthOffset + patternWidth])
-				{
+					grid[row][widthOffset .. widthOffset + patternWidth]){
 					match = false;
 					break;
 				}
 			}
-			if (match)
-			{
+			if (match){
 				matches += {<heightOffset, widthOffset>};
 			}
 		}
@@ -159,35 +164,30 @@ public list[&U] flatten(list[list [&U]] \map){
 	return flat;
 }
 
-
-public TileMap getSubMap(
-	Coordinates c, 
-	tuple[int height,int width] size,
-	TileMap \map){ 
+//Produces the coordinates that are included in the given coords
+//eg IF the coords are the walls of a map this function 
+// returns the inside as well
+public set[Coordinates] fillInGaps(set[Coordinates] coords){
+	Coordinates c = min(coords); //starting point
+	int height = getMaxX(coords) - c.x + 1;
+	int width = getMaxY(coords) - c.y + 1;
 	
-	TileMap subMap = [];
-	list[str] sublist = [];
+	set[Coordinates] extraCoordinates = {};
 	
-	for(int i <- [0 .. size.height]){
-		for(int j <- [0 .. size.width]){
-			sublist += \map[c.x + i][c.y + j];
-		}
-		subMap += [sublist];
-		sublist = [];	
-	}		
-			
-	return subMap;
+	for(int i <- [0 .. height])
+		for(int j <- [0 .. width])
+			extraCoordinates += {<c.x + i,c.y + j>};
+	
+	return coords + extraCoordinates;
 }
 
 public tuple[Coordinates, TileMap] extractSection(
 	TileMap \map, 
 	set[Coordinates] affectedArea){
 	
-	Coordinates startingPoint = min(affectedArea);
-	int height = max(affectedArea).x - startingPoint.x + 1;
-	int width = max(affectedArea).y - startingPoint.y + 1;
+	affectedArea = fillInGaps(affectedArea);
 	
-	return <startingPoint, getSubMap(startingPoint, <height,width>, \map)>;
+	return translateCoordinatesToTilemap(affectedArea, \map);
 }
 
 public tuple[Coordinates, TileMap] getAreaAround(
@@ -218,11 +218,10 @@ public TileMap getAllButAreaAround(
 	return removeCoordinatesFromTileMap(\map, allCoords);
 }
 
-private TileMap removeCoordinatesFromTileMap(
+public TileMap removeCoordinatesFromTileMap(
 	TileMap \map, 
 	set[Coordinates] coords){
-	for(c <- coords) 
-		if(c.x < size(\map) && c.y < size(\map[0]))
+	for(c <- coords, c.x < size(\map) && c.y < size(\map[0]))
 			\map[c.x][c.y] = undefined;
 	return \map;
 }
@@ -283,7 +282,7 @@ private bool isReachable(Coordinates c, list[list[str]] \map){
 	}
 	str target = \map[c.x][c.y];
 	return target == "f" || target == "e" || target == "x"
-		|| target == "d" || target == "s"; //not ideal
+		|| target == "d" || target == "s" || target == "g"; //not ideal
 }
 
 private Coordinates getRight(Coordinates c){ return <c.x, c.y + 1>; }

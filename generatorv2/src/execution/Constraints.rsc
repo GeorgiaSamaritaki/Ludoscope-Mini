@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This file containts the evaluation of constraints 
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module execution::Constraints
 
 import IO;
@@ -19,14 +27,11 @@ public ExecutionArtifact checkNonExitConstraints(
 	ExecutionArtifact artifact, 
 	list[Constraint] constraints
 ){
-	for(c <-constraints){
-		if(c.typ != onexit()){
-			//println("Checking constraint <c.name>");
-			artifact = checkConstraint(artifact, c, c.typ);
-			//println("Finished checking constraint <c.name>");
-		}
+	for(c <- constraints, c.typ != onexit()){
+		printError("Checking Constraint <c.name>");
+		artifact = checkConstraint(artifact, c, c.typ);
+		if(artifact.errors!=[]) break;
 	}
-	
 	return artifact;
 }
 
@@ -34,9 +39,10 @@ public ExecutionArtifact checkExitConstraints(
 	ExecutionArtifact artifact, 
 	list[Constraint] constraints
 ){
-	for(c <-constraints){
-		if(c.typ == onexit())
-			artifact = checkConstraint(artifact, c, c.typ);
+	for(c <- constraints, c.typ == onexit()){
+		printError("Checking Constraint <c.name>");
+		artifact = checkConstraint(artifact, c, c.typ);
+		if(artifact.errors!=[]) break;
 	}
 	
 	return artifact;
@@ -58,9 +64,9 @@ private ExecutionArtifact checkConstraint(
 		case boolean(bool b):{
 			if(!b){
 				printError("Constraint non resolvable exiting.");
-				artifact.errors += [constraintNotMet(name)];
-			}else 
-				return artifact;
+				artifact.errors += [constraintNotMet(c.name, c@location)];
+			} 
+			return artifact;
 		}
 		case integer(_):{ 
 			artifact.errors += [constraintEval(c.name, c@location)];
@@ -77,13 +83,11 @@ private ExecutionArtifact checkConstraint(
 	Constraint c,
 	resolvable()
 ){
-	
 	tuple[ExecutionArtifact artifact, Value v] t = eval(c.exp, artifact); 
 	artifact = t.artifact;
 	
 	if(artifact.errors != []) return artifact;
 	
-	println("constraint <c.name>");
 	visit(t.v){
 		case boolean(bool b):{
 			if(!b){ 
@@ -134,7 +138,6 @@ private ExecutionArtifact checkConstraint(
 /////////////////////////////////////////////////////////////////////////////////
 
 private tuple[ExecutionArtifact, Value] eval(Expression exp, ExecutionArtifact artifact){
-	//println("Eval called with <exp>");
 	visit(exp){
 		case e_eq(Expression lhs, Expression rhs):{
 			Value l,r;
@@ -184,8 +187,7 @@ private Value evalEq(boolean(bool a), boolean(bool b)){
 private Value evalIncl(str var1, str var2, ExecutionArtifact artifact){
 	set[Coordinates] var1coords = artifact.variables[var1],
 					var2coords = artifact.variables[var2];
-	
-	return boolean(var2coords <= fillInCoordinates(var1coords));
+	return boolean(var1coords <= fillInCoordinates(var2coords));
 }
 
 private tuple[ExecutionArtifact, Value] evalFunc(count(), str name, ExecutionArtifact artifact){
@@ -197,15 +199,15 @@ private tuple[ExecutionArtifact, Value] evalFunc(exists(), str name, ExecutionAr
 }
 
 private tuple[ExecutionArtifact, Value] evalFunc(intact(), str name, ExecutionArtifact artifact){
-	HistoryEntry lastEntry = last(artifact.history);
-	
 	if(name notin artifact.graphs) return <artifact, boolean(true)>;
 	Path p = artifact.graphs[name];
-	//println("check path <lastEntry.coordinates> path:<p.path>");
 	
-	list[Coordinates] intersection = toList(lastEntry.coordinates) & p.path;
+	list[Coordinates] intersection = [];
 	
-	if(intersection != []){
+	//if(isEmpty(artifact.history)) intersection = [<0,0>];
+	//else intersection = toList(last(artifact.history).coordinates) & p.path;
+	//
+	//if(intersection != []){
 		//path is broken, Recompute graph
 		Graph[Coordinates] newGraph = getGraph(artifact.output);
 		list[Coordinates] newPath = shortestPathPair(newGraph, p.from, p.to);
@@ -217,8 +219,7 @@ private tuple[ExecutionArtifact, Value] evalFunc(intact(), str name, ExecutionAr
 			return <artifact, boolean(false)>;
 		}else 
 			artifact.graphs[name].path = newPath;
-	}
-
+	//}
 	return <artifact, boolean(true)>;
 }
 

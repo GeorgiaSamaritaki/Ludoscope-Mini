@@ -5,6 +5,7 @@ data ParsingError
 	| fileNotFound(loc fileLocation)
 	| duplicateAlphabetEntry(str abbreviation, loc fileLocation)
 	| duplicateRuleDefinition(str rulename, loc fileLocation)
+	| duplicateHandlerDefinition(str hname, loc fileLocation)
 	| undefinedCharacterInRule(str c, str rulename, loc fileLocation)
 	| parsing(loc fileLocation)
 	| ambiguity(loc fileLocation, str usedSyntax)
@@ -55,6 +56,10 @@ str errorToString(duplicateAlphabetEntry(str abbreviation, loc fileLocation))
 
 str errorToString(duplicateRuleDefinition(str rulename, loc fileLocation)){
 	return "Parsing error: Rule <rulename> is already defined in this module: <fileLocation>";
+}
+
+str errorToString(duplicateHandlerDefinition(str haname, loc fileLocation)){
+	return "Parsing error: Handler <hname> is already defined: <fileLocation>";
 }
 
 str errorToString(undefinedCharacterInRule(str c, str rulename, loc fileLocation))

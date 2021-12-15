@@ -1,3 +1,12 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This file filters the data impoded from the .lm files. 
+//			In the process of filtering it generated parsing errors.
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module parsing::ConvertAst
 
 import parsing::AST;
@@ -11,8 +20,12 @@ import List;
 
 public TransformationArtifact transformPipeline(Pipeline project){
 	TransformationArtifact artifact = getEmptyTransformationArtifact();
+	
 	artifact = getAlphabetMap(project.alphabet.symbols, artifact);
+	artifact = getConstraints(project.constraints, artifact);
 	artifact.project.options = project.options;
+	artifact = getHandlers(project.handlers, artifact);
+	
 	
 	artifact = getModules(project, artifact); 
 	//ludoscopeProject(alphabet, options, modules, []);
@@ -31,7 +44,22 @@ private TransformationArtifact getAlphabetMap(list[SymbolInfo] symbols,
 	
 	artifact.project.alphabet = alphMap;
 	return artifact;
+}
+
+private TransformationArtifact getHandlers(list[Handler] handlers, 
+								   TransformationArtifact artifact){
+	HandlerMap hmap = ();
+	
+	for(Handler h <- handlers)
+		if(h.name notin hmap)
+			hmap[h.name] = h.hcalls;
+		else
+			artifact.errors += [duplicateHandlerDefinition(h.name, h@location)];
+	
+	artifact.project.handlers = hmap;
+	return artifact;
 } 
+ 
 
 private TransformationArtifact getModules(Pipeline project, 
 										 TransformationArtifact artifact){
@@ -162,25 +190,26 @@ private bool areSameDimensions(list[list[str]] listA, list[list[str]] listB){
 
 
 
-//private tuple[list[Constraint], TransformationArtifact] getConstraints (
-//	list[Constraint] constraints, 
-//	TransformationArtifact artifact){
-//	
-//	constraints = [c | c <- constraints, c != empty()];
-//	
-//	for(c <- constraints){
-//		if(c.typ == count()){ ;
-//			
-//		}else if (c.typ == exists()){ ;
-//		
-//		}else if (c.typ == intact()){ ;
-//		
-//		}
-//	}
-//	
-//	return <constraints, artifact>;
-//}
-//
+private TransformationArtifact getConstraints (
+	list[Constraint] constraints, 
+	TransformationArtifact artifact){
+	
+	constraints = [c | c <- constraints, c != empty()];
+	
+	//for(c <- constraints){
+	//	if(c.typ == count()){ ;
+	//		
+	//	}else if (c.typ == exists()){ ;
+	//	
+	//	}else if (c.typ == intact()){ ;
+	//	
+	//	}
+	//}//ToDo implement
+	
+	artifact.project.constraints = constraints;
+	return artifact;
+}
+
 
 
 

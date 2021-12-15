@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   Syntax for .lm files.
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module parsing::Syntax
 
 import ParseTree;
@@ -41,6 +49,7 @@ start syntax Pipeline
 	 	Options options 
 	 	Module+ modules
 	 	Constraint* constraints
+	 	("handlers" "{" Handler* handlers "}")?
 	 "}";
 
 syntax Alphabet
@@ -153,7 +162,19 @@ syntax Value
 	| boolean: BOOLEAN boolean
 	| varName: NAME name 
 	;
-	
+
+    
+syntax Handler 
+	= handler: NAME name "{" 
+		HandlerCall* hcalls
+	"}";
+
+syntax HandlerCall
+	= clearPath: "ClearPath" "(" CHAR tileType "," NAME constraintName ")" ";"
+	| reverseM: "ReverseChangesByLastModule" "(" ")" ";"
+	| executeM: "ExecuteModule" "("NAME moduleName")" ";"
+	| ";";
+
 //////////////////////////////////////////////////	
 //LD parsers
 //////////////////////////////////////////////////

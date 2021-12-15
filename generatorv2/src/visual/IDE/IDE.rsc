@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   This file containts the *entirety* of the visual interface 
+//		    Unfortunately calling anything from outside this file to be
+//			visualised failed tremendously, and therefore we end up 
+//			with this monstrosity. 
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com.
+//			(This is heavily relied on the work of
+//			Quinten Heijn - samuel.heijn@gmail.com - UvA
+//			on his work on Ludoscope Lite, but altere for the purposes
+//			of Ludoscope Mini)			
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module visual::IDE::IDE
 
 //import visual::IDE::View;
@@ -260,7 +275,7 @@ void viewProject(Model model)
 			button(class("saveButton btn btn-secondary"), onClick(saveChanges()), "Save changes");
 
 			codeMirror("cm", onChange(cmChange), style(("height": "50%")),
-			  lineNumbers(true), \value(model.projectViewInfo.src), lineWrapping(true), class("cm-s-3024-night"));
+			   mode("javascript"), lineNumbers(true), \value(model.projectViewInfo.src), lineWrapping(true), class("cm-s-3024-night"));
 		});
 		div(class("col-md-6"), () {
 			if (model.projectViewInfo.transformationArtifact.project == undefinedProject())

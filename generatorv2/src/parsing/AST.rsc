@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   The AST used for parsing Ludoscope Mini files ().lm). 
+//			This file contains the data structure needed for imploding
+//			a parsed .lm tree.
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module parsing::AST
 
 
@@ -25,8 +35,9 @@ anno loc Pattern@location;
 anno loc Recipe@location;
 anno loc Call@location;
 anno loc Expression@location;
+anno loc Constraint@location;
 anno loc ConstraintType@location;
-
+anno loc Handler@location;
 
 
 ////////////////////////////////////////////////
@@ -38,7 +49,8 @@ data Pipeline
  	Alphabet alphabet,
  	Options options,
  	list[Module] modules,
- 	list[Constraint] constraints
+ 	list[Constraint] constraints,
+ 	list[Handler] handlers
  	);
  
 data Alphabet
@@ -132,6 +144,16 @@ data ConstraintType
 	| nonresolvable()
 	;
 	
+
+data Handler
+	= handler(str name, list[HandlerCall] hcalls);
+
+data HandlerCall
+	= clearPath(str tileType, str constraintName)
+	| reverseM()
+	| executeM(str moduleName)
+	;
+
 data Value
  	= integer(int integer)
  	| boolean(bool boolean)

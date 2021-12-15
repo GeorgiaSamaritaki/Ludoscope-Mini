@@ -11,9 +11,7 @@ pipeline {
 	module firstModule {
 		rules {
 			addGrass:
-			d
-			-> 
-			g;
+			d -> g;
 			removeGrass:
 			g -> d;
 		}

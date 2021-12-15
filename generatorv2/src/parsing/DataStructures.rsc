@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Part of Ludoscope Mini
+// @brief   The data structures used for parsing. 
+// @author  Georgia Samaritaki - samaritakigeorgia@gmail.com
+// @date    10-10-2021
+//
+//////////////////////////////////////////////////////////////////////////////
 module parsing::DataStructures
 
 import errors::Parsing;
@@ -11,6 +19,8 @@ alias AbstractModuleList = list[parsing::AST::Module];
 alias RuleMap	= map[str, LudoscopeRule];
 alias RecipeList = list[Call];
 alias AlphabetMap = map [str, AlphabetEntry];
+alias HandlerMap = map [str, list[HandlerCall]];
+
 
 alias History = list[Transformation];
 alias Transformation = str;
@@ -26,6 +36,8 @@ data LudoscopeProject
 		AlphabetMap alphabet,
 		Options options,
 		list[LudoscopeModule] modules, 
+		list[Constraint] constraints,
+		HandlerMap handlers,
 		History history
 		)
 	| undefinedProject();
@@ -54,6 +66,8 @@ public TransformationArtifact getEmptyTransformationArtifact() =
 			(), //AlphabetMap
 			undefined(), // Options
 			[], //modules
+			[],
+			(),
 			[] //History
 		), []);
 	

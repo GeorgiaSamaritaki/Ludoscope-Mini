@@ -18,7 +18,7 @@ data ExecutionError
 	;
 	
 public void printError(str errormessage){
-	//println("Error message: <errormessage>");
+	println("Debugger message: <errormessage>");
 }
 
 str errorToString(notImplemented(loc fileLocation)){

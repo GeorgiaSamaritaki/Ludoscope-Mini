@@ -1,0 +1,25 @@
+pipeline {
+  alphabet {
+  	dirt d #996633; 
+	grass g #33FF00;
+   }
+	options {
+		seed: 12;
+		size: 10x10;
+		tiletype: d; 
+	}
+	
+	module first { 
+		rules {
+			addGrass: 
+			d -> g;
+  		}
+		recipe {
+			addGrass;
+		}
+		;
+	}
+	;
+	handlers{
+	}
+}

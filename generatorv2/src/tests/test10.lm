@@ -14,7 +14,7 @@ pipeline {
 		tiletype: d; 
 	}
 	
-	module first {
+	module first { 
 		rules {
 		  addWalls:
 			ddddddd,
@@ -45,9 +45,11 @@ pipeline {
   		}
 		recipe {
 		  	room = addWalls; 
-			addTreasure[notIn room];
+			addTreasure[in room];
 		}
 		;
 	}
 	;
+	handlers{
+	}
 }
