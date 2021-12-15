@@ -1,4 +1,4 @@
-module IDE
+module main
 
 import util::IDE;
 import vis::Figure;

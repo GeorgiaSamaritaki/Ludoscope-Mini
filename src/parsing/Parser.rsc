@@ -67,7 +67,12 @@ public TransformationArtifact parseProjectFromLoc(loc projectFile){
 	AbstractPipeline project = implodePipeline(LD_parse(projectFile));
 	TransformationArtifact artifact = transformPipeline(project);
 	return artifact;	
-} 
+}
+
+//Wrapper for command line
+public void runProjectFromLoc(loc projectFile){
+	runProject(LD_parse(projectFile), projectFile);
+}  
 
 public void runProject(Tree tree, loc projectFile){
 	TransformationArtifact artifact = parseAndCheck(tree);
