@@ -1,1 +1,1 @@
-Ludoscope2.0
+This repo contains the work of my Master Thesis where I implemented a PCG grammar-based tool called Ludoscope Mini

@@ -1,0 +1,74 @@
+pipeline {
+	
+	alphabet {
+		floor f #907558; 
+		wall * #A9A9A9;
+		entrance  e #00FF00;
+		exit  x #FF0000;
+		pillar | #964B00;
+		water ~ #ADD8E6;
+	}	
+	
+	options {
+		seed: 12;
+		size: 10x10;
+		tiletype: f;
+	}
+	
+	module firstModule {
+		rules {
+			addWalls:
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff,
+			ffffffffff
+			->
+			**********,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			*ffffffff*,
+			**********;
+			addEntrance: 
+			*,
+			f 
+			->  
+			e,
+			f;
+			addExit: 
+			f* 
+			-> 
+			fx;
+			addWall:
+			f,f,f,f,f,f,f,f
+			-> 
+			*,*,*,*,*,*,*,*;
+			
+		}
+		
+		recipe {
+			addWalls;
+			addEntrance;
+			addExit;
+			path = CreatePath(e,x);
+			addWall;
+		}
+		
+		on exit constraint a: e == true;
+		resolvable constraint b: path == true; 
+		
+	}
+	
+	
+}
+
