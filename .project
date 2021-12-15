@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>generatorv2</name>
+	<name>LM</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -39,7 +39,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1632222693452</id>
+			<id>0</id>
 			<name></name>
 			<type>30</type>
 			<matcher>

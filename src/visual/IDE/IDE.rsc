@@ -69,8 +69,8 @@ SalixApp[Model] ldApp(str id = "root") = makeApp(id, init, view, update);
 App[Model] ldWebApp()
   = webApp(
       ldApp(),
-      |project://generatorv2/src/visual/IDE/index.html|, 
-      |project://generatorv2/src|
+      |project://LM/src/visual/IDE/index.html|, 
+      |project://LM/src|
     );
 
 alias ProjectViewInfo
@@ -415,7 +415,7 @@ public void view(Model model) {
 //		//BugType selectedBugType
 //	];
 	
-private loc projectsFolder = |project://generatorv2/src/tests|;
+private loc projectsFolder = |project://LM/src/tests|;
 
 Model init() {
 	Mode mode = grammar2mode("Project pipeline", #Pipeline);
