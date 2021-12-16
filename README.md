@@ -15,12 +15,10 @@ Ludoscope Mini supports file with the extension _.lm_. To run a specific file fr
 ```
 runProjectFromLoc(|project://LM/src/tests/test0.lm|);
 ``` 
-###### _Note:_ Sometimes Eclipse doesn't import Rascal files properly and cannot find certain functions to fix this run: ```import parsing::Parser;```
- 
  
 To boot up the visual interface simply run:
 ```
 import visual::IDE::IDE;
 ldWebApp();
 ```
-###### _Note:_ Salix is still buggy therefore certain features might not work as expected. CodeMirror which is visualising code in the web app doesnt work properly as of now so all the .lm files can only be edited through eclipse. 
+###### _Note:_ Salix is still buggy therefore certain features might not work as expected. CodeMirror which is visualising code in the web app doesnt work properly as of now so all the .lm files can only be edited through Eclipse (with nice highlighting!) or a text editor.
