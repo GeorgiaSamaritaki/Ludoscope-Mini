@@ -4,11 +4,9 @@ pipeline {
 		entrance e #FFFFFF;
 		spawn s #C8A2C8;
 		wall w #A9A9A9;
-		grass g #00FF00;
-		monster m #8B0000; 
 	}
 	options {
-		seed: 12;
+		seed: 20;
 		size: 25x25;
 		tiletype: f; 
 	}
@@ -17,7 +15,6 @@ pipeline {
 		  addSpawn:
 		    f -> s;
 		}
-		
 		recipe {
 		    level_entrance = addSpawn;
 		}
@@ -49,7 +46,7 @@ pipeline {
 			f;
 		}
 		recipe {
-		    room = addWalls[notNextTo level_entrance]; 
+		    room = addWalls; 
 			place_entrance = addEntrance[in room];
 		    path = CreatePath(place_entrance,level_entrance);
 		}
@@ -70,69 +67,17 @@ pipeline {
 		}
 		recipe {
 		    room = addWalls[in the_place]; 
-			vault_entrance = addEntrance[in room];
+		    vault_entrance = addEntrance[in room];
 			path1 = CreatePath(place_entrance,vault_entrance);
 		}
         resolvable constraint inner_path: Intact(path1);
 	}
 	
-	module antichamber {
-		rules {
-		  addGrass:
-			f -> g;
-			expandGrass:
-			f,
-			g 
-			-> 
-			g,
-			g;
-			expandGrass1:
-			ff,
-			gf -> 
-			fg,
-			gf;
-			expandGrass2:
-			fg -> gg;
-			expandGrass3:
-			gf -> gg;
-			addMonster:
-			g -> m;
-		}
-		
-		recipe {
-			addGrass[nextTo place_entrance > notIn the_place];
-			expandGrass2;
-			expandGrass3;
-			expandGrass;
-			expandGrass1;
-			expandGrass3;
-			expandGrass;
-			expandGrass2;
-			expandGrass;
-			expandGrass3;
-			expandGrass1;
-			expandGrass2;
-			expandGrass3;
-			expandGrass2;			
-			expandGrass;
-			expandGrass1;
-			expandGrass;
-			expandGrass;
-			expandGrass2;
-			expandGrass;
-			expandGrass1;
-			expandGrass1;
-			expandGrass;
-			expandGrass2;
-			addMonster[notNextTo place_entrance];
-			addMonster[notNextTo place_entrance];
-		}
-		;
-	}
 	on exit constraint vault_in_place: vault in the_place;
+    on exit constraint a: Count(s) == 1;
     on exit constraint path_intact: Intact(path);
-    
-    handlers{
+	
+   	handlers{
     	inner_path{
     		ReverseChangesByLastModule();
     		ExecuteModule(vault);

@@ -15,6 +15,7 @@ import IO;
 import analysis::graphs::Graph;
 
 import utility::TileMap;
+import utility::Arbitrary;
 import errors::Execution;
 
 import execution::DataStructures;
@@ -149,7 +150,7 @@ private ExecutionArtifact call(
 	}
 	
 	//Transform the tilemap
-	Coordinates match = getOneFrom(matches); //defined by the arbSeed function
+	Coordinates match = arbTakeOneFrom(matches); //defined by the arbSeed function
 	match.x += offset.x; 
 	match.y += offset.y;
 	

@@ -11,7 +11,7 @@ pipeline {
 	module firstModule {
 		rules {
 			addGrass:
-			d -> g;
+			d -> gg;
 			removeGrass:
 			g -> d;
 		}
@@ -21,5 +21,7 @@ pipeline {
 		;
 	}
 	;
+	handlers{
+	}
 }
 

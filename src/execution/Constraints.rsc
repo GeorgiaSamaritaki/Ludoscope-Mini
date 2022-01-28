@@ -81,28 +81,31 @@ private ExecutionArtifact checkConstraint(
 private ExecutionArtifact checkConstraint(
 	ExecutionArtifact artifact, 
 	Constraint c,
-	resolvable()
-){
-	tuple[ExecutionArtifact artifact, Value v] t = eval(c.exp, artifact); 
-	artifact = t.artifact;
-	
+	r:resolvable()
+){ //FIXME: make it pretty
+	int i = 0;
+	Value v;
+	<artifact, v> = eval(c.exp, artifact); 
 	if(artifact.errors != []) return artifact;
+
+	if(v is boolean){
+		while(!v.boolean && //while the condition is not met 
+			  i < execution::Handlers::maxHandlerCalls){ //and the max call limit hasnt been reached
+			//println("calling handler <i>");
+			
+			artifact = callHandler(c.name, artifact);
+			<artifact, v> = eval(c.exp, artifact); 
+			if(artifact.errors != []) return artifact;
+			i+=1;
+		}
+		if(!v.boolean) //handler failed to fix it
+			artifact.errors += [maxHandlerCallsReached(c.name,r@location)];
+			
+	}else if(v is integer){ 
+		artifact.errors += [constraintEval(c.name, c@location)];
+		return artifact;
+	}else artifact.errors += [runtimeMachineError()];
 	
-	visit(t.v){
-		case boolean(bool b):{
-			if(!b){ 
-				println("calling handler");
-				artifact = callHandler(c.name, artifact);
-			} 
-			return artifact;
-		}
-		case integer(_):{ 
-			artifact.errors += [constraintEval(c.name, c@location)];
-			return artifact;
-		}
-	}
-	artifact.errors += [runtimeMachineError()];
-		
 	return artifact;
 }
 

@@ -10,8 +10,9 @@ data ExecutionError
 	| variableDoesntExist(str varname, loc fileLocation)
 	| noPath(str a, str b, str graphname, loc fileLocation)
 	| runtimeMachineError()
+	| maxHandlerCallsReached(str handlerName, loc fileLocation)
 	| constraintNotMet(str name, loc fileLocation)
-	| constraintEval(str name, loc fileLoation)
+	| constraintEval(str name, loc fileLocation)
 	| variableUndefined(str name, loc fileLocation)
 	| undefinedHandler(str name)
 	| pathBroken(str ruleName, str moduleName, str graphname)
@@ -59,16 +60,23 @@ str errorToString(constraintNotMet(str name, loc fileLocation)){
 	<fileLocation>";
 }
 
-str errorToString(constraintEval(str name, loc fileLoation)){
-	return "Execution error: Constraint <name> could not be evaluated: ";
+str errorToString(constraintEval(str name, loc fileLocation)){
+	return "Execution error: Constraint <name> could not be evaluated 
+	<fileLocation> ";
 }
 
 str errorToString(variableUndefined(str name, loc fileLocation)){
-	return "Execution error: Variable |<name>| is not defined";
+	return "Execution error: Variable |<name>| is not defined
+	<fileLocation>";
 }
 
 str errorToString(undefinedHandler(name)){
 	return "Execution error: Handler |<name>| is not defined";
+}
+
+str errorToString(maxHandlerCallsReached(str handlerName, loc fileLocation)){
+	return "Execution error: Max Handler Calls reached. Handler |<handlerName>| was unable to fix the issue
+	<fileLocation>";	
 }
 
 public void printSM(str systemmessage){

@@ -6,7 +6,7 @@ pipeline {
 		wall w #A9A9A9;
 	}
 	options {
-		seed: 12;
+		seed: 27;
 		size: 25x25;
 		tiletype: f; 
 	}
@@ -61,7 +61,7 @@ pipeline {
 			->
 			wwww,
 			wffw,
-			wwww
+			wwww;
 			addEntrance: 
 			wf -> ef;
 		}

@@ -11,6 +11,7 @@ module execution::Handlers
 
 import IO;
 import List;
+import Set;
 import analysis::graphs::Graph;
 
 import utility::TileMap;
@@ -23,6 +24,8 @@ import parsing::AST;
 
 import List;
 
+int maxHandlerCalls = 10;
+
 public ExecutionArtifact callHandler(str constraintName, ExecutionArtifact artifact){
 	if(constraintName notin artifact.handlers){
 		printError("No handler with name <constraintName>");
@@ -33,12 +36,7 @@ public ExecutionArtifact callHandler(str constraintName, ExecutionArtifact artif
 	
 	for(c <- calls) artifact = handlerCall(artifact, constraintName, c);
 	
-	//switch(constraintName){
-	//	case /inner_path/: 
-	//			return reExecuteLastModule(constraintName, artifact);
-	//	default: 
-	//		artifact += [undefinedHandler(constraintName)];
-	//}
+	
 	return artifact;
 }
 
@@ -63,8 +61,8 @@ private ExecutionArtifact handlerCall(
 	str constraintName,
 	executeM(str moduleName)
 ){
-	LudoscopeModule m = getModule(moduleName);
-	return executeModuleNoConstraints(artifact,m);
+	
+	return executeModule(constraintName, moduleName, artifact);
 }
 
 
@@ -72,6 +70,15 @@ private ExecutionArtifact handlerCall(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Helper
 //////////////////////////////////////////////////////////////////////////////////////////////
+private ExecutionArtifact executeModule(
+	str cname, 
+	str moduleName,
+	ExecutionArtifact artifact
+){
+	LudoscopeModule m = getModule(moduleName);
+	return executeModuleNoConstraints(artifact,m);
+}
+
 private ExecutionArtifact reverseChangesByLastModule(
 	str cname, 
 	ExecutionArtifact artifact
@@ -103,14 +110,14 @@ private ExecutionArtifact clearPath(str convertTile, str varName, ExecutionArtif
 	 	return artifact;
 	}
 	Path p = artifact.graphs[varName];
-	list[Coordinates] intersection = lastEntry.coordinates & p.path;
+	list[Coordinates] intersection = toList(lastEntry.coordinates) & p.path;
 	
 	HistoryEntry newEntry = entry(
 								artifact.output,
 								[],
-								intersection,
-								"Repair",
-								"Path");
+								toSet(intersection),
+								"System",
+								"Handler for ClearPath");
 	for(c <- intersection){
 		artifact.output = changeTile(convertTile, c, artifact.output);
 	}

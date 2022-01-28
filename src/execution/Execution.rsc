@@ -95,9 +95,9 @@ public ExecutionArtifact executeModuleNoConstraints(
 		if(artifact.errors != []) return artifact;
 	}
 	
-	artifact = checkNonExitConstraints(artifact, \module.constraints);
-	if(artifact.errors == []) 
-		artifact = checkExitConstraints(artifact, \module.constraints);
+	//artifact = checkNonExitConstraints(artifact, \module.constraints);
+	//if(artifact.errors == []) 
+	//	artifact = checkExitConstraints(artifact, \module.constraints);
 	
 	return artifact;
 }
