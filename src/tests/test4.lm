@@ -64,11 +64,12 @@ pipeline {
 			addWall;
 		}
 		
-		on exit constraint a: e == true;
-		resolvable constraint b: path == true; 
+		on exit constraint a: e == True;
+		resolvable constraint b: path == True; 
 		
 	}
-	
-	
+	;
+	handlers{
+	}
 }
 

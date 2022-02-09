@@ -91,7 +91,7 @@ private ExecutionArtifact checkConstraint(
 	if(v is boolean){
 		while(!v.boolean && //while the condition is not met 
 			  i < execution::Handlers::maxHandlerCalls){ //and the max call limit hasnt been reached
-			//println("calling handler <i>");
+			println("calling handlerdler <i>");
 			
 			artifact = callHandler(c.name, artifact);
 			<artifact, v> = eval(c.exp, artifact); 
@@ -122,7 +122,7 @@ private ExecutionArtifact checkConstraint(
 		case boolean(bool b):{
 			if(!b){
 				printError("Constraint non resolvable exiting.");
-				artifact.errors += [constraintNotMet(name, c@location)];
+				artifact.errors += [constraintNotMet(c.name, c@location)];
 			}else 
 				return artifact;
 		}
@@ -146,7 +146,12 @@ private tuple[ExecutionArtifact, Value] eval(Expression exp, ExecutionArtifact a
 			Value l,r;
 			<artifact, l> = eval(lhs, artifact);
 			<artifact, r> = eval(rhs, artifact);
-			return <artifact, evalEq(l, r)>;
+			if((r is boolean && l is boolean) ||
+				(r is integer && l is integer))
+				return <artifact, evalEq(l, r)>;
+			else{
+				return <artifact, integer(-1)>;
+			}
 		}
 	}
 	//I separated the visits cause it never went to the e_eq for some reason

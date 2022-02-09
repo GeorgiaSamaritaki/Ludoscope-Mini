@@ -282,7 +282,8 @@ private bool isReachable(Coordinates c, list[list[str]] \map){
 	}
 	str target = \map[c.x][c.y];
 	return target == "f" || target == "e" || target == "x"
-		|| target == "d" || target == "s" || target == "g"; //not ideal
+		|| target == "d" || target == "s" || target == "g"
+		|| target == "t"; //not ideal
 }
 
 private Coordinates getRight(Coordinates c){ return <c.x, c.y + 1>; }

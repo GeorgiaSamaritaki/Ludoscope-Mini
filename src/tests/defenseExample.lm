@@ -1,0 +1,70 @@
+pipeline {
+  	alphabet {
+  		dirt d #996633; 
+  		entrance e #80FF80;
+		wall w #4D4D4D;
+		vase v #8B0000;
+		treasure t #FFD700;
+   	}
+   	
+	options {
+		seed: 50;
+		size: 10x10;
+		tiletype: d; 
+	}
+	
+	module treasureRoom { 
+		rules {
+		    addWalls:
+			ddddddd,
+			ddddddd,
+			ddddddd,
+			ddddddd,
+			ddddddd
+			->
+			wwwwwww,
+			wdddddw,
+			wdddddw,
+			wdddddw,
+			wwwwwww;
+			addEntrance: 
+			w,
+			d 
+			->  
+			e,
+			d;
+			addTreasure: 
+			d -> t;
+			addVase: 
+			d -> v;
+  		}
+		recipe {
+		  	room = addWalls; 
+		  	entrance = addEntrance[in room];
+			treasure = addTreasure[in room];
+			path = CreatePath(entrance,treasure);
+			addVase[in room];			
+		}
+		on exit constraint entranceExists: Count(e) == 1;
+		on exit constraint treasureExists: Count(t) == 1;
+		on exit constraint treasureInRoom: treasure in room;
+		resolvable constraint inner_path: Intact(path);
+		
+	}
+	;
+	handlers{
+		inner_path{
+			ClearPath(d, path);
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+

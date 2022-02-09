@@ -6,7 +6,7 @@ pipeline {
 		wall w #A9A9A9;
 	}
 	options {
-		seed: 65;
+		seed: 20;
 		size: 25x25;
 		tiletype: f; 
 	}

@@ -111,7 +111,7 @@ private ExecutionArtifact clearPath(str convertTile, str varName, ExecutionArtif
 	}
 	Path p = artifact.graphs[varName];
 	list[Coordinates] intersection = toList(lastEntry.coordinates) & p.path;
-	
+	println("intersection <intersection>");
 	HistoryEntry newEntry = entry(
 								artifact.output,
 								[],
