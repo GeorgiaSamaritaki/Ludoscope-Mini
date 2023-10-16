@@ -3,7 +3,8 @@
 This repo contains the work of my Master Thesis where I implemented a PCG grammar-based tool called Ludoscope Mini.
 
 Ludoscope is a grammar-based content generation system for level design. The tool can sequentially evolve models by using rewrite rules that gradually transform space, represented as tilemaps. Level
-transformation pipelines step-by-step transform level content, gradually adding detail, dungeons, enemies, encounters, missions, etc. Ludoscope was designed by [Ludomotion](https://www.ludomotion.com/)
+transformation pipelines step-by-step transform level content, gradually adding detail, dungeons, enemies, encounters, missions, etc. Ludoscope was designed by [Ludomotion](https://www.ludomotion.com/).
+
 Ludoscope-Mini enhances the tool further by offering a way to guide the generation and exclusively generate useful content the designer intended. The tool offers an improvement to PCG designers workflow and an intuitive way to help generation at runtime.   
 
 The project is developped in [Rascal](https://github.com/usethesource/rascal) and uses [Salix](https://github.com/usethesource/salix/tree/master/src/salix) for the visualisation.
