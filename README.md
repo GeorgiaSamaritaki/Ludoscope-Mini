@@ -1,6 +1,6 @@
 # Ludoscope Mini
 
-This repo contains the work of my Master Thesis where I implemented a PCG grammar-based tool called Ludoscope Mini.
+This repo contains the work of my Master Thesis where I implemented a PCG grammar-based tool called Ludoscope Mini. You can find the thesis [here](https://scripties.uba.uva.nl/search?id=record_52794).
 
 Ludoscope is a grammar-based content generation system for level design. The tool can sequentially evolve models by using rewrite rules that gradually transform space, represented as tilemaps. Level
 transformation pipelines step-by-step transform level content, gradually adding detail, dungeons, enemies, encounters, missions, etc. Ludoscope was designed by [Ludomotion](https://www.ludomotion.com/).
