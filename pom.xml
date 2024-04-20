@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.rascalmpl</groupId>
-  <artifactId>LM</artifactId>
+  <artifactId>ludoscope-mini</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <properties>
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>org.rascalmpl</groupId>
       <artifactId>rascal</artifactId>
-      <version>0.34.0</version>
+      <version>0.34.1</version>
     </dependency>
   </dependencies>
 
@@ -52,10 +52,11 @@
           <errorsAsWarnings>true</errorsAsWarnings>
           <bin>${project.build.outputDirectory}</bin>
           <srcs>
-            <src>${project.basedir}/src/main/rascal</src>
+            <src>${project.basedir}/src</src>
           </srcs>
         </configuration>
       </plugin>
     </plugins>
   </build>
 </project>
+    
