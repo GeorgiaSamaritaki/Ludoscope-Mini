@@ -30,7 +30,7 @@ public ExecutionArtifact executeCall(
 	LudoscopeModule \module, 
 	c:call(str ruleName)
 ){
-	return call(artifact, \module, ruleName, c@location, artifact.currentState,
+	return call(artifact, \module, ruleName, c.src, artifact.currentState,
 			<0,0>, "", false);
 }
 
@@ -39,7 +39,7 @@ public ExecutionArtifact executeCall(
 	LudoscopeModule \module, 
 	a:assignCall(str varname, str ruleName)
 ){
-	return call(artifact, \module, ruleName, a@location, artifact.currentState,
+	return call(artifact, \module, ruleName, a.src, artifact.currentState,
 			<0,0>, varname, true);
 }
 
@@ -48,7 +48,7 @@ public ExecutionArtifact executeCall(
 	LudoscopeModule \module, 
 	a:appendCall(str varname, str ruleName)
 ){
-	return call(artifact, \module, ruleName, a@location, artifact.currentState,
+	return call(artifact, \module, ruleName, a.src, artifact.currentState,
 			<0,0>, varname, false);
 }
 
@@ -61,17 +61,17 @@ public ExecutionArtifact executeCall(
 	Coordinates offset = <0,0>;
 	
 	<artifact, modifiedArea, offset> = 
-		execution::Modifiers::applyModifiers(artifact, c@location, 
+		execution::Modifiers::applyModifiers(artifact, c.src, 
 						patternSize(\module.rules[ruleName].lhs),
 						m + modifiers);
 	
 	if(modifiedArea == []){
 		printError("Not applicable modifier");
-		artifact.errors += [notAppliableModifier(c@location)];
+		artifact.errors += [notAppliableModifier(c.src)];
 		return artifact;
 	}
 
-	return call(artifact, \module, ruleName, c@location, 
+	return call(artifact, \module, ruleName, c.src, 
 			modifiedArea,
 			offset, "", false);
 }
@@ -85,17 +85,17 @@ public ExecutionArtifact executeCall(
 	Coordinates offset = <0,0>;
 	
 	<artifact, modifiedArea, offset> = 
-		execution::Modifiers::applyModifiers(artifact, a@location, 
+		execution::Modifiers::applyModifiers(artifact, a.src, 
 						patternSize(\module.rules[ruleName].lhs),
 						m + modifiers);
 						
 	if(modifiedArea == []){
 		printError("Not applicable modifier");
-		artifact.errors += [notAppliableModifier(a@location)];
+		artifact.errors += [notAppliableModifier(a.src)];
 		return artifact;
 	}
 	
-	return call(artifact, \module, ruleName, a@location, modifiedArea,
+	return call(artifact, \module, ruleName, a.src, modifiedArea,
 			offset, varname, true);
 }
 
@@ -108,17 +108,17 @@ public ExecutionArtifact executeCall(
 	Coordinates offset = <0,0>;
 	
 	<artifact, modifiedArea, offset> = 
-		execution::Modifiers::applyModifiers(artifact, a@location, 
+		execution::Modifiers::applyModifiers(artifact, a.src, 
 						patternSize(\module.rules[ruleName].lhs),
 						m + modifiers);
 						
 	if(modifiedArea == []){
 		printError("Not applicable modifier");
-		artifact.errors += [notAppliableModifier(a@location)];
+		artifact.errors += [notAppliableModifier(a.src)];
 		return artifact;
 	}
 	
-	return call(artifact, \module, ruleName, a@location, modifiedArea,
+	return call(artifact, \module, ruleName, a.src, modifiedArea,
 			offset, varname, false);
 
 }
@@ -198,10 +198,10 @@ public ExecutionArtifact executeCall(
     Graph[Coordinates] g = getGraph(artifact.currentState);
 	
 	if(a notin artifact.variables){ 
-		artifact.errors += [variableUndefined(a, cP@location)];
+		artifact.errors += [variableUndefined(a, cP.src)];
 		return artifact;
 	}else if(b notin artifact.variables){
-		artifact.errors += [variableUndefined(b, cP@location)];
+		artifact.errors += [variableUndefined(b, cP.src)];
 		return artifact;
 	}
 	Coordinates pointA = min(artifact.variables[a]);
@@ -211,7 +211,7 @@ public ExecutionArtifact executeCall(
 	
     if(shortestPath == []){
     	printError("There is no viable path from <a> to <b> (graphname <varname>)");
-    	//artifact.errors += [noPath(a, b, varname, cP@location)];
+    	//artifact.errors += [noPath(a, b, varname, cP.src)];
     	artifact.graphs[varname] = path(pointA, pointB, []);
     }else{
     	printError("Adding graph named <varname>");

@@ -27,7 +27,7 @@ public ExecutionArtifact checkNonExitConstraints(
 	ExecutionArtifact artifact, 
 	list[Constraint] constraints
 ){
-	for(c <- constraints, c.typ != onexit()){
+	for(c <- constraints, !c := empty() && c.typ != onexit()){
 		printError("Checking Constraint <c.name>");
 		artifact = checkConstraint(artifact, c, c.typ);
 		if(artifact.errors!=[]) break;
@@ -39,7 +39,7 @@ public ExecutionArtifact checkExitConstraints(
 	ExecutionArtifact artifact, 
 	list[Constraint] constraints
 ){
-	for(c <- constraints, c.typ == onexit()){
+	for(c <- constraints, !c := empty() && c.typ == onexit()){
 		printError("Checking Constraint <c.name>");
 		artifact = checkConstraint(artifact, c, c.typ);
 		if(artifact.errors!=[]) break;

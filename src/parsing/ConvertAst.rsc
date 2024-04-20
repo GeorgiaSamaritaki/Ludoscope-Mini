@@ -40,7 +40,7 @@ private TransformationArtifact getAlphabetMap(list[SymbolInfo] symbols,
 		if(si.abbreviation notin alphMap)
 			alphMap[si.abbreviation] = alphabetEntry(si.name.val,si.color);
 		else
-			artifact.errors += [duplicateAlphabetEntry(si.abbreviation, si@location)];
+			artifact.errors += [duplicateAlphabetEntry(si.abbreviation, si.src)];
 	
 	artifact.project.alphabet = alphMap;
 	return artifact;
@@ -54,7 +54,7 @@ private TransformationArtifact getHandlers(list[Handler] handlers,
 		if(h.name notin hmap)
 			hmap[h.name] = h.hcalls;
 		else
-			artifact.errors += [duplicateHandlerDefinition(h.name, h@location)];
+			artifact.errors += [duplicateHandlerDefinition(h.name, h.src)];
 	
 	artifact.project.handlers = hmap;
 	return artifact;
@@ -102,27 +102,28 @@ private tuple[RuleMap, TransformationArtifact]
 		//Check if the two sides are the same dimensions
 		TileMap lhs = patternToTilemap(r.leftHand.patterns),
 				rhs = patternToTilemap(r.rightHand.patterns);
+		// println("Checking rule <r.src>\n ");
 		if(!areSameDimensions(lhs,rhs)){ 
 			println("Error: Incorrect size length lhs rhs for rule <r.name> \n <lhs> \n <rhs> ");
 			artifact.errors +=[rightAndLeftHandSize(size(lhs), 
 							size(lhs[0]), 
 							size(rhs), 
 							size(rhs[0]), 
-							r@location)];
+							r.src)];
 		}
 		//Check if the rule is already defined
 		if(r.name.val in ruleMap){
 			println("Error: Rule <r.name> is already defined");
-			artifact.errors += [duplicateRuleDefinition(r.name.val, r@location)];
+			artifact.errors += [duplicateRuleDefinition(r.name.val, r.src)];
 			return <(),artifact>;
 		}else 
-			ruleMap[r.name.val] = ludoscopeRule(lhs,rhs);
+			ruleMap[r.name.val] = ludoscopeRule(lhs, rhs);
 		
 		//Check if all the characters used in rule are defined, can be turned off
 		list[str] characters = dup(flatten(lhs + rhs));
 		for(c <- characters) 
 			if(c notin artifact.project.alphabet) 	
-				artifact.errors += [undefinedCharacterInRule(c,r.name.val,r@location)];
+				artifact.errors += [undefinedCharacterInRule(c, r.name.val, r.src)];
 	}
 			
 	return <ruleMap, artifact>;
@@ -137,32 +138,32 @@ private tuple[RecipeList, TransformationArtifact]
 		case c:call(str ruleName) : 
 			if(ruleName notin rules){
 				println("Error: Rule <ruleName> specified in recipe does not exist in rules ");
-				artifact.errors += [nonExistentRule(ruleName, c@location)];
+				artifact.errors += [nonExistentRule(ruleName, c.src)];
 			}
 		case c:assignCall(_, str ruleName) : 
 			if(ruleName notin rules){
 				println("Error: Rule <ruleName> specified in recipe does not exist in rules ");
-				artifact.errors += [nonExistentRule(ruleName, c@location)];
+				artifact.errors += [nonExistentRule(ruleName, c.src)];
 			}
 		case c:appendCall(_, str ruleName) : 
 			if(ruleName notin rules){
 				println("Error: Rule <ruleName> specified in recipe does not exist in rules ");
-				artifact.errors += [nonExistentRule(ruleName, c@location)];
+				artifact.errors += [nonExistentRule(ruleName, c.src)];
 			}
 		case c:callM(str ruleName,_) : 
 			if(ruleName notin rules){
 				println("Error: Rule <ruleName> specified in recipe does not exist in rules ");
-				artifact.errors += [nonExistentRule(ruleName, c@location)];
+				artifact.errors += [nonExistentRule(ruleName, c.src)];
 			}
 		case c:assignCallM(_, str ruleName,_) : 
 			if(ruleName notin rules){
 				println("Error: Rule <ruleName> specified in recipe does not exist in rules ");
-				artifact.errors += [nonExistentRule(ruleName, c@location)];
+				artifact.errors += [nonExistentRule(ruleName, c.src)];
 			}
 		case c:appendCallM(_, str ruleName,_) : 
 			if(ruleName notin rules){
 				println("Error: Rule <ruleName> specified in recipe does not exist in rules ");
-				artifact.errors += [nonExistentRule(ruleName, c@location)];
+				artifact.errors += [nonExistentRule(ruleName, c.src)];
 			}
 	}
 	return <calls, artifact>;

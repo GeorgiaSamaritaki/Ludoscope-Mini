@@ -24,20 +24,22 @@ public parsing::AST::Pipeline implodePipeline(Tree tree)
 public parsing::AST::Pipeline parsePipelineToAST(loc location)
   = implodePipeline(LD_parse(location));
  
-anno loc Pipeline@location;
-anno loc Alphabet@location;
-anno loc SymbolInfo@location;
-anno loc Options@location;
-anno loc Module@location;
-anno loc Rules@location;
-anno loc Rule@location;
-anno loc Pattern@location;
-anno loc Recipe@location;
-anno loc Call@location;
-anno loc Expression@location;
-anno loc Constraint@location;
-anno loc ConstraintType@location;
-anno loc Handler@location;
+/* deprecated */
+
+// anno loc Pipeline@location; 
+// anno loc Alphabet@location;
+// anno loc SymbolInfo@location;
+// anno loc Options@location;
+// anno loc Module@location;
+// anno loc Rules@location;
+// anno loc Rule@location;
+// anno loc Pattern@location;
+// anno loc Recipe@location;
+// anno loc Call@location;
+// anno loc Expression@location;
+// anno loc Constraint@location;
+// anno loc ConstraintType@location;
+// anno loc Handler@location;
 
 
 ////////////////////////////////////////////////
@@ -57,7 +59,7 @@ data Alphabet
 	= alphabet(
 	list[SymbolInfo] symbols);
 	
-data SymbolInfo
+data SymbolInfo (loc src = |unknown:///|)
 	= symbolInfo(
 			Name name, 
 			str abbreviation,
@@ -82,7 +84,7 @@ data Module
 data Rules 
 	= rules(list[Rule] rules);
 	
-data Rule
+data Rule (loc src = |unknown:///|)
 	= rule(
 		Name name, 
 		Pattern leftHand, 
@@ -95,7 +97,7 @@ data Pattern
 data Recipe
  	= recipe(list[Call] calls);
  
-data Call
+data Call (loc src = |unknown:///|)
 	= call(str ruleName)
 	| assignCall(str varname, str ruleName)
 	| appendCall(str varname, str ruleName)
@@ -114,9 +116,10 @@ data CallModifier
 	;
 	
 data Constraint 
- 	= constraint(ConstraintType typ,
- 	str name, 
- 	Expression exp)
+ 	= constraint(
+		ConstraintType typ,
+ 		str name, 
+ 		Expression exp)
  	| empty(); 
 
 data Expression
@@ -145,7 +148,7 @@ data ConstraintType
 	;
 	
 
-data Handler
+data Handler (loc src = |unknown:///|)
 	= handler(str name, list[HandlerCall] hcalls);
 
 data HandlerCall

@@ -8,8 +8,8 @@
 //////////////////////////////////////////////////////////////////////////////
 module parsing::DataStructures
 
-import errors::Parsing;
 import parsing::AST;
+import errors::Parsing;
 
 import utility::TileMap;
 
