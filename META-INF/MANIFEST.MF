@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: generatorv2
-Bundle-SymbolicName: LM
+Bundle-SymbolicName: ludoscope-mini
 Bundle-Version: 1.0.0
 Require-Bundle: rascal_eclipse
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

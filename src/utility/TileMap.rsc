@@ -23,7 +23,7 @@ alias Coordinates = tuple[int x, int y];
 str undefined = "?";
 
 public list[list[str]] createTileMap(int width, int height, str symbol){
-	return [[symbol | int i <- [0 .. width]] | int j <- [0 .. height]];
+	return [[symbol | int _ <- [0 .. width]] | int _ <- [0 .. height]];
 }
 
 public void printTileMap(list[list[str]] \map){
@@ -31,7 +31,7 @@ public void printTileMap(list[list[str]] \map){
 	for(list[str] row <- \map){
 		println(row);
 	}
-}
+} 
 
 //Returns <height, width>
 public tuple[int,int] patternSize(TileMap \map){
@@ -69,7 +69,7 @@ public set[Coordinates] findPatternInGrid(TileMap grid, TileMap pattern)
 	int gridHeight = size(grid);
 	list[str] patternFirstLine = pattern[0];
 	
-	for (/[C*, [A*, patternFirstLine, B*], D*] := grid)
+	for (/[*C, [*A, patternFirstLine, *B], *D] := grid)
 	{
 		int widthOffset = size(A);
 		int heightOffset = size(C);

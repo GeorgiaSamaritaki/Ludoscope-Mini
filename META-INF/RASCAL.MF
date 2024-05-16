@@ -1,7 +1,7 @@
 Manifest-Version: 0.0.1
 Main-Function: main
 Courses: courses
-Project-Name: generatorv2
+Project-Name: ludoscope-mini
 Require-Libraries: 
 Main-Module: Plugin
 Source: src

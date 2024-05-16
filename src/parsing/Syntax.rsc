@@ -49,7 +49,7 @@ start syntax Pipeline
 	 	Options options 
 	 	Module+ modules
 	 	Constraint* constraints
-	 	("handlers" "{" Handler* handlers "}")?
+	 	Handlers? handlers
 	 "}";
 
 syntax Alphabet
@@ -163,7 +163,11 @@ syntax Value
 	| varName: NAME name 
 	;
 
-    
+syntax Handlers
+	= "handlers" "{" 
+		Handler* handlers 
+	"}";
+
 syntax Handler 
 	= handler: NAME name "{" 
 		HandlerCall* hcalls

@@ -2,19 +2,19 @@ module Main
 
 // import util::IDE;
 // import vis::Figure;
-import util::LanguageServer;
-import util::IDEServices;
+import util::LanguageServer; 
 import util::Reflective;
+import ParseTree;
 import IO;
 
 import parsing::Parser;
 import parsing::Syntax;
 import parsing::AST;
+import parsing::Outliner;
 
-public str LDName = "Ludoscope_mini";  //language name
+public str LDName = "LudoscopeMini";  //language name
 public str LDExtension  = "lm" ;           //file extension
 public str LDMainModule  = "Main" ;    
-PathConfig LDpcfg = pathConfig(srcs=[|project://ludoscope-mini/src|]);
 
 // Contribution STYLE =
 //   categories
@@ -43,11 +43,11 @@ public void main(){
 	//       )
 	//     )
 	// };
-	registerLanguage(
-		language(
-			LDpcfg, LDName, LDExtension, LDMainModule, LD_parse)
-			);
-	
+	// registerLanguage(
+	// 	language(
+	// 		parsing::Outliner::LDpcfg, LDName, LDExtension, LDMainModule, LDContributions)
+	// 		);
+	 
 	// LD_contributions = {STYLE};
 	
 	// registerContributions(LD_NAME, LD_contributions);

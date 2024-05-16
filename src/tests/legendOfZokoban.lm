@@ -1,0 +1,208 @@
+pipeline {
+	alphabet{
+		Floor     . #F7E26B; 
+		WallDirt  r #B66D26;
+		Water     w #1D57F7;
+		WallStone s #697175;
+		Boulder   b #EB8931;
+		Door 	  d #1B2632;
+		Sword     k #FFFFFF;
+		Enemy     e #BE2633; 
+		Player 	  p #44891A;
+	}
+	options {
+		seed: 20;
+		size: 36x40;
+		tiletype: .; 
+	}
+	module environment {
+		rules {
+		  addSpawn:
+		    . -> s;
+		}
+		
+		recipe {
+		    spawn_point = addSpawn;
+		};
+	}
+	module Dungeon {
+		rules {
+		  	addWalls:
+				.........,
+				.........,
+				.........,
+				.........,
+				.........,
+				.........,
+				.........
+				->
+				sssssssss,
+				s.......s,
+				s.......s,
+				s.......s,
+				s.......s,
+				s.......s,
+				sssssssss;
+			expandWall1:
+			    s. 
+				->
+				ss;
+			expandWall2:
+			    s,
+				. 
+				->
+				s,
+				s;
+			addDoor: 
+				.s 
+				->  
+				.d;
+			addEnemy: 
+				. 
+				->  
+				e;
+			addSword: 
+				. 
+				->  
+				k;
+			addBoulder: 
+				. 
+				->  
+				b;
+		}
+		recipe {
+		    dungeon_room1 = addWalls; 
+			expandWall1[in dungeon_room1];
+			expandWall2[in dungeon_room1];
+			expandWall1[in dungeon_room1];
+			addEnemy[in dungeon_room1];
+			addSword[in dungeon_room1 > notNextTo dungeon_room1];
+			droom1_entrance = addDoor[in dungeon_room1];
+
+		    dungeon_room2 = addWalls; 
+			expandWall1[in dungeon_room2];
+			expandWall2[in dungeon_room2];
+			expandWall1[in dungeon_room2];
+			addEnemy[in dungeon_room2];
+			addBoulder[in dungeon_room1 > notNextTo dungeon_room2];
+			droom2_entrance = addDoor[in dungeon_room2];
+		}
+		;
+	}
+	module MainArea {
+		rules {
+		  addWalls:
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................,
+			....................
+			->
+			rrrrrrrrrrrrrrrrrwww,
+			r.rrrrr.rr.......www,
+			r.rrrrr.rr.r.r.r.www,
+			r.rrrrr.............,
+			r..........r...r....,
+			rr...............www,
+			rrrrr..rrrrr.....www,
+			rrrrr..rrrrr.....www,
+			rrrrr..rrrr.....wwww,
+			rrrr....rr...r..www.,
+			r.......rr.......ww.,
+			r..............r.ww.,
+			rr.....rrr..r....www,
+			rrrrrrrrrrrrrrrrrwww;
+
+			addDoor: 
+				r,
+				. 
+				-> 
+				d,
+				.;
+
+			addEnemy: 
+				. 
+				->  
+				e;
+			
+			addBoulder: 
+				. 
+				->  
+				b;
+		}
+		recipe {
+		    main_area = addWalls; 
+			vault_entrance1 = addDoor[in main_area];
+			vault_entrance2 = addDoor[in main_area];
+
+			addEnemy[in main_area > notNextTo vault_entrance1 > notNextTo vault_entrance2];
+			addEnemy[in main_area > notNextTo vault_entrance1 > notNextTo vault_entrance2];
+
+			addBoulder[in main_area > notNextTo vault_entrance1 > notNextTo vault_entrance2 > notNextTo main_area];
+			addBoulder[in main_area > notNextTo vault_entrance1 > notNextTo vault_entrance2 > notNextTo main_area];
+
+			path1 = CreatePath(spawn_point,vault_entrance1);
+			path2 = CreatePath(spawn_point,vault_entrance2);
+		}
+
+        resolvable constraint inner_path1: Intact(path1);
+        resolvable constraint inner_path2: Intact(path2);
+	}
+	
+	module WaterRoom {
+		rules {
+		  	expandWater:
+				w.,
+				w., 
+				w.
+				-> 
+				ww,
+				ww, 
+				ww;
+			expandWater1:
+				w.,
+				..
+				-> 
+				ww,
+				ww;
+			addEnemy:
+			. -> e;
+		}
+		
+		recipe {
+			expandWater;
+			expandWater1;
+			expandWater;
+			expandWater1;
+			expandWater;
+			expandWater1;
+
+			addMonster[notNextTo place_entrance];
+			addMonster[notNextTo place_entrance];
+		}
+		;
+	}
+    on exit constraint path_intact1: Intact(path1);
+    on exit constraint path_intact1: Intact(path2);
+    
+    handlers{
+    	inner_path1{
+    		ReverseChangesByLastModule();
+    		ExecuteModule(MainArea);
+    	}
+		inner_path2{
+    		ReverseChangesByLastModule();
+    		ExecuteModule(MainArea);
+    	}
+    }
+
+}

@@ -13,7 +13,7 @@ import List;
 import Set;
 import analysis::graphs::Graph;
 
-import utility::TileMap;
+import utility::TileMap; 
 import errors::Execution;
 
 import parsing::DataStructures;
@@ -64,12 +64,12 @@ private ExecutionArtifact checkConstraint(
 		case boolean(bool b):{
 			if(!b){
 				printError("Constraint non resolvable exiting.");
-				artifact.errors += [constraintNotMet(c.name, c@location)];
+				artifact.errors += [constraintNotMet(c.name, c.src)];
 			} 
 			return artifact;
 		}
 		case integer(_):{ 
-			artifact.errors += [constraintEval(c.name, c@location)];
+			artifact.errors += [constraintEval(c.name, c.src)];
 			return artifact;
 		}
 	}
@@ -82,7 +82,7 @@ private ExecutionArtifact checkConstraint(
 	ExecutionArtifact artifact, 
 	Constraint c,
 	r:resolvable()
-){ //FIXME: make it pretty
+){ 
 	int i = 0;
 	Value v;
 	<artifact, v> = eval(c.exp, artifact); 
@@ -99,10 +99,10 @@ private ExecutionArtifact checkConstraint(
 			i+=1;
 		}
 		if(!v.boolean) //handler failed to fix it
-			artifact.errors += [maxHandlerCallsReached(c.name,r@location)];
+			artifact.errors += [maxHandlerCallsReached(c.name,c.src)];
 			
 	}else if(v is integer){ 
-		artifact.errors += [constraintEval(c.name, c@location)];
+		artifact.errors += [constraintEval(c.name, c.src)];
 		return artifact;
 	}else artifact.errors += [runtimeMachineError()];
 	
@@ -122,12 +122,12 @@ private ExecutionArtifact checkConstraint(
 		case boolean(bool b):{
 			if(!b){
 				printError("Constraint non resolvable exiting.");
-				artifact.errors += [constraintNotMet(c.name, c@location)];
+				artifact.errors += [constraintNotMet(c.name, c.src)];
 			}else 
 				return artifact;
 		}
 		case integer(_):{ 
-			artifact.errors += [constraintEval(c.name, c@location)];
+			artifact.errors += [constraintEval(c.name, c.src)];
 			return artifact;
 		}
 	}
@@ -168,17 +168,17 @@ private tuple[ExecutionArtifact, Value] eval(Expression exp, ExecutionArtifact a
 		case incl(str var1, str var2): {
 			if(var1 notin artifact.variables){
 				printError("Variable <var1> is not defined");
-				artifact.errors += [variableUndefined(var1, exp@location)];
+				artifact.errors += [variableUndefined(var1, exp.src)];
 			}else if(var2 notin artifact.variables){
 				printError("Variable <var2> is not defined");
-				artifact.errors += [variableUndefined(var2, exp@location)];
+				artifact.errors += [variableUndefined(var2, exp.src)];
 			}else 
 				return <artifact, evalIncl(var1, var2, artifact)>;
 		}
 		
 	}
 	printError("Non implemented expression <exp>");
-	artifact.errors += [notImplemented(exp@location)];
+	artifact.errors += [notImplemented(exp.src)];
 
 	return <artifact, integer(1)>;
 }

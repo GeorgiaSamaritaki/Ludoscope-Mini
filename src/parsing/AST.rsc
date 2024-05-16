@@ -11,7 +11,7 @@
 module parsing::AST
 
 
-import parsing::Syntax;
+import parsing::Syntax; 
 import ParseTree;
 
 ////////////////////////////////////////////////
@@ -115,14 +115,14 @@ data CallModifier
 	| notNextTo(str varname)
 	;
 	
-data Constraint 
+data Constraint (loc src = |unknown:///|)
  	= constraint(
 		ConstraintType typ,
  		str name, 
  		Expression exp)
  	| empty(); 
 
-data Expression
+data Expression (loc src = |unknown:///|)
 	= e_val(Value val)
 	| func(FunctionType ft, Name varName)
 	| incl(str var1, str var2) 
@@ -146,7 +146,6 @@ data ConstraintType
 	| resolvable()
 	| nonresolvable()
 	;
-	
 
 data Handler (loc src = |unknown:///|)
 	= handler(str name, list[HandlerCall] hcalls);
