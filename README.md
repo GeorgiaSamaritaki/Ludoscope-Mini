@@ -31,7 +31,7 @@ main();
 ```
 Ludoscope Mini supports file with the extension _.lm_. To run a specific file from the Eclipse terminal:
 ```
-runProjectFromLoc(|project://ludoscope-mini/src/tests/test0.lm|);
+runProjectFromLoc(|project://ludoscope-mini/src/tests/legendOfZokoban1.lm|);
 ``` 
  
 To boot up the visual interface simply run:

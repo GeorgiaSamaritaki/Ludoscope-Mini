@@ -185,7 +185,7 @@ pipeline {
 		;
 	}
     on exit constraint path_intact1: Intact(path1);
-    on exit constraint path_intact1: Intact(path2);
+    on exit constraint path_intact2: Intact(path2);
     
     handlers{
     	inner_path1{

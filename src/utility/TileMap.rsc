@@ -26,10 +26,13 @@ public list[list[str]] createTileMap(int width, int height, str symbol){
 	return [[symbol | int _ <- [0 .. width]] | int _ <- [0 .. height]];
 }
 
-public void printTileMap(list[list[str]] \map){
+//adjusted printing so that puzzlescript can read it
+public void printTileMap(list[list[str]] \map){ 
 	println("TileMap");
 	for(list[str] row <- \map){
-		println(row);
+		for(t <- row)
+			print(t);
+		println();
 	}
 } 
 
